@@ -1,0 +1,406 @@
+definitions:
+  api.CategoryRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  api.LoginRequest:
+    properties:
+      password:
+        maxLength: 20
+        minLength: 6
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  api.PostCreate:
+    properties:
+      cid:
+        type: integer
+      comment_count:
+        type: integer
+      content:
+        type: string
+      desc:
+        type: string
+      img:
+        type: string
+      read_count:
+        type: integer
+      title:
+        type: string
+    type: object
+  api.RegisterRequest:
+    properties:
+      password:
+        maxLength: 20
+        minLength: 6
+        type: string
+      re_password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - re_password
+    - username
+    type: object
+  api.UserResponse:
+    properties:
+      full_name:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  api.UserUpdateRequest:
+    properties:
+      username:
+        type: string
+    required:
+    - username
+    type: object
+info:
+  contact: {}
+paths:
+  /auto/upload:
+    get:
+      parameters:
+      - description: 文件名称
+        in: path
+        name: fileName
+        required: true
+        type: string
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 图片上传鉴权
+      tags:
+      - 上传
+  /category:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 添加列表
+      tags:
+      - 分类管理
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 分类名称
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/api.CategoryRequest'
+      responses:
+        "200":
+          description: '{"code":200,"data":{},"msg":"ok"}'
+          schema:
+            type: string
+      summary: 添加分类
+      tags:
+      - 分类管理
+  /category/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分类id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 删除分类
+      tags:
+      - 分类管理
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分类id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 分类详情
+      tags:
+      - 分类管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分类id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 分类名称
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/api.CategoryRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 修改
+      tags:
+      - 分类管理
+  /posts:
+    get:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 文章列表
+      tags:
+      - 文章
+    post:
+      parameters:
+      - description: 文章
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/api.PostCreate'
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 创建文章
+      tags:
+      - 文章
+  /posts/{id}:
+    delete:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 删除文章
+      tags:
+      - 文章
+    post:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 获取文章
+      tags:
+      - 文章
+    put:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 更新 文章
+      tags:
+      - 文章
+  /user/{id}:
+    delete:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserResponse'
+      summary: 删除用户
+      tags:
+      - 用户
+    put:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 用户信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.UserUpdateRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserResponse'
+      summary: 修改用户信息
+      tags:
+      - 用户
+  /user/info:
+    get:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserResponse'
+      summary: 获取用户信息
+      tags:
+      - 用户
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 登录信息
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/api.LoginRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserResponse'
+      summary: 用户登录
+      tags:
+      - 用户
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 注册信息
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/api.RegisterRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 用户注册
+      tags:
+      - 用户
+swagger: "2.0"

@@ -1,0 +1,75 @@
+package errmsg
+
+const (
+	SUCCESS = 200
+	ERROR   = 400
+	// 用户模块
+	ERROR_USERNAME_USED = iota + 1001
+	ERROR_PASSWORD_WRONG
+	ERROR_USER_NOT_EXIST
+	ERROR_TOKEN_EXIST
+	ERROR_USERNAME_OR_PASSWORD_WRONG
+	// Token
+	ERROR_ART_NOT_EXIST = iota + 2001
+	ERROR_TOKEN_RUNTIME
+	ERROR_TOKEN_WRONG
+	ERROR_TOKEN_FORMAT
+	// 分类模块
+	ERROR_CATENAME_EXITS = iota + 3001
+	ERROR_CATENAME_USED
+	ERROR_CATENAME_FORMAT
+	REEOR_CATE_ADD_FAIL
+	ERROR_CATEGORY_BY_ID_NOT_EXIST
+	ERROR_CATEGORY_UPDATE_FAIL
+	// 文章帖子
+	ERROR_ARTICLE_CONTENT = iota + 4001
+	ERROR_ARTICLE_ERROR
+	ERROR_ARTICLE_ADD_FAIL
+	ERROR_ARTICLE_UPDATE_FAIL
+	ERROR_ARTICLE_DELETE_FAIL
+)
+
+var codeMsg = map[int]string{
+
+	SUCCESS: "OK",
+	ERROR:   "FAIL",
+
+	// 用户模块
+	// 用户名或或密码错误
+	ERROR_USERNAME_OR_PASSWORD_WRONG: "用户名或密码错误",
+	ERROR_USERNAME_USED:              "用户名已存在",
+	ERROR_PASSWORD_WRONG:             "用户名或密码错误",
+	ERROR_USER_NOT_EXIST:             "用户不存在",
+	ERROR_TOKEN_EXIST:                "TOKEN不存在",
+	//TOken过期
+	ERROR_TOKEN_RUNTIME: "TOKEN已过期",
+	//Token错误
+	ERROR_TOKEN_WRONG: "TOKEN不正确",
+	//TOken格式错误
+	ERROR_TOKEN_FORMAT: "TOKEN格式错误",
+
+	//分类模块
+	ERROR_CATENAME_USED:            "分类已存在",
+	ERROR_CATENAME_EXITS:           "分类不存在",
+	ERROR_CATENAME_FORMAT:          "分类格式错误",
+	ERROR_CATEGORY_BY_ID_NOT_EXIST: "分类ID不正确",
+	ERROR_CATEGORY_UPDATE_FAIL:     "分类更新失败",
+	// 添加失败
+	REEOR_CATE_ADD_FAIL: "添加分类失败",
+
+	//文章模块
+
+	// 没用文章内容
+	ERROR_ART_NOT_EXIST:       "文章不存在",
+	ERROR_ARTICLE_CONTENT:     "没有文章内容",
+	ERROR_ARTICLE_ERROR:       "提交数据错误",
+	ERROR_ARTICLE_ADD_FAIL:    "添加文章失败",
+	ERROR_ARTICLE_UPDATE_FAIL: "跟新文章失败",
+	//文章删除失败
+	ERROR_ARTICLE_DELETE_FAIL: "删除文章失败",
+}
+
+func GetErrMsg(code int) string {
+	return codeMsg[code]
+
+}
