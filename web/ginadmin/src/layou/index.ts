@@ -1,3 +1,3 @@
 import {Layout} from "./Layout"
-
-export {Layout}
+import Component from "./Dashboard"
+export {Layout, Component}
