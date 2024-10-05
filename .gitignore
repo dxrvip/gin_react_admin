@@ -1,0 +1,10 @@
+# 忽略 IDE 配置文件
+.idea/               # IntelliJ IDEA
+*.iml               # IntelliJ IDEA module files
+*.sublime-workspace  # Sublime Text
+*.sublime-project    # Sublime Text
+.vscode/            # Visual Studio Code
+
+# 忽略环境文件
+web/ginadmin/.env
+web/ginadmin/.env.production
