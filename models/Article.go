@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"goVueBlog/serializer"
 
 	"gorm.io/gorm"
 )
@@ -31,22 +32,21 @@ type Article struct {
 	Category Category `gorm:"foreignKey:Cid"`
 	gorm.Model
 	ID           uint    `gorm:"primarykey" json:"id"`
-	Title        string  `gorm:"type:varchar(100);not null" json:"title" binding:"required,max=100,min=4"`
-	Cid          int     `gorm:"type:int;not null" json:"cid" binding:"required,min=0"`
-	Desc         string  `gorm:"type:varchar(200)" json:"desc" binding:"max=200"`
-	Content      string  `gorm:"type:longtext" json:"content" binding:"required,min=1"`
-	Picture      Picture `gorm:"type:json" json:"picture" binding:"required"`
-	CommentCount int     `gorm:"type:int;not null;default:0" json:"comment_count"`
-	ReadCount    int     `gorm:"type:int;not null;default:0" json:"read_count"`
+	Title        string  `gorm:"type:varchar(100);not null"`
+	Cid          int     `gorm:"type:int;not null"`
+	Desc         string  `gorm:"type:varchar(200)"`
+	Content      string  `gorm:"type:longtext"`
+	Picture      Picture `gorm:"type:json"`
+	CommentCount int     `gorm:"type:int;not null;default:0"`
+	ReadCount    int     `gorm:"type:int;not null;default:0"`
 }
 
 // 添加数据
-func CreatePost(data *Article) (err error) {
+func CreatePost(data *serializer.PostRequry) (err error) {
 
-	return Db.Create(&data).Error
+	return Db.Model(&Article{}).Create(&data).Error
 }
 
-// 查询所有数据
 // 查询所有数据
 func PostList(limit, skip int, stroArr []string) (*[]Article, int64, error) {
 	var posts []Article

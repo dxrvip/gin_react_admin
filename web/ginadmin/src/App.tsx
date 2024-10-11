@@ -5,10 +5,10 @@ import {
 } from "react-admin";
 import { Route } from "react-router";
 import { Layout, Component } from "./layou";
-import dataProvider from "./dataProvider";
-import { authProvider } from "./authProvider";
+import dataProvider from "./utils/dataProvider";
+import { authProvider } from "./utils/authProvider";
 
-import i18nProvider from "./i18nProvider"
+import i18nProvider from "./utils/i18nProvider"
 import post from "./blog/post"
 import categories from "./blog/categories"
 import { ProfileEdit } from "./user";

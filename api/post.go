@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"goVueBlog/models"
+	h "goVueBlog/modules"
+	"goVueBlog/serializer"
 	"goVueBlog/utils/errmsg"
 	"net/http"
 	"strconv"
@@ -11,16 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// PostCreate 创建文章
-type PostCreate struct {
-	Title        string `json:"title"`
-	Content      string `json:"content"`
-	Cid          int    `json:"cid"`
-	Desc         string `json:"desc"`
-	Img          string `json:"img"`
-	CommentCount int    `json:"comment_count"`
-	ReadCount    int    `json:"read_count"`
-}
+// ResponsePosts 响应文章列表
 type ResponsePosts []struct {
 	models.Article
 }
@@ -33,23 +26,19 @@ type ResponsePosts []struct {
 // @Success 200 {object} object
 // @Router /posts [post]
 func CreatePost(c *gin.Context) {
-	data := models.Article{}
+	body := serializer.PostRequry{}
 	var code int
-	if err := c.ShouldBindJSON(&data); err != nil {
+	if err := c.ShouldBindJSON(&body); err != nil {
 		code = errmsg.ERROR_ARTICLE_ERROR
-		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error(), "code": code})
-		return
+		h.Fails(c, h.Response{Code: code})
 	}
-	fmt.Println(data)
+	fmt.Println(body)
 	// 添加到数据库
-	if err := models.CreatePost(&data); err != nil {
-
+	if err := models.CreatePost(&body); err != nil {
 		code = errmsg.ERROR_ARTICLE_ADD_FAIL
-		c.JSON(http.StatusBadRequest, gin.H{"msg": errmsg.GetErrMsg(code), "code": code})
-		return
+		h.Fails(c, h.Response{Code: code})
 	}
-	c.JSON(http.StatusOK, data)
-
+	h.Success(c, h.Response{Msg: "success", Data: body})
 }
 
 // PostList
@@ -91,7 +80,7 @@ func PostList(c *gin.Context) {
 	// 添加一个返回协议头
 	c.Header("Content-Range", fmt.Sprintf("%d-%d/%d", skip, skip+len(*article), total))
 	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusOK, article)
+	h.Success(c, h.Response{Msg: "success", Data: article, Total: total})
 }
 
 // PostCreate
@@ -107,7 +96,6 @@ func PostInfo(c *gin.Context) {
 	)
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-
 		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error(), "code": code})
 		return
 	}
@@ -118,7 +106,7 @@ func PostInfo(c *gin.Context) {
 		return
 	}
 	code = errmsg.SUCCESS
-	c.JSON(http.StatusOK, article)
+	h.Success(c, h.Response{Data: article, Code: code})
 }
 
 // PostDelete

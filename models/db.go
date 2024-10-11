@@ -34,7 +34,7 @@ func DbInit() {
 	var err error
 	Db, err = gorm.Open(mysql.Open(dns), &gorm.Config{Logger: newLogger})
 	if err != nil {
-		panic("failed to connect database")
+		panic("连接数据库失败")
 	}
 	//
 	sqlDb, _ := Db.DB()

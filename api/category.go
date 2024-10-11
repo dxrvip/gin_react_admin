@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"goVueBlog/models"
+	"goVueBlog/modules"
 	"goVueBlog/utils/errmsg"
 	"net/http"
 	"strconv"
@@ -94,7 +95,11 @@ func GetCategoryList(c *gin.Context) {
 	categories = *categoriesPointer
 	c.Header("Content-Range", fmt.Sprintf("%d-%d/%d", skip, skip+len(categories), totalCount))
 	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusOK, categories)
+	modules.Success(c, modules.Response{
+		Code:  code,
+		Data:  categories,
+		Total: totalCount,
+	})
 }
 
 // UpdateCategory

@@ -14,10 +14,8 @@ import (
 func AuthMiddleware(c *gin.Context) {
 	// 检查请求头中是否包含token
 	tokenString := c.GetHeader("Authorization")
-
 	if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-		c.Abort()
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的token"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "无效的token"})
 		return
 	}
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
@@ -25,8 +23,7 @@ func AuthMiddleware(c *gin.Context) {
 	appKey := viper.GetString("app.Key")
 	claims, err := utils.VerifyJWT(tokenString, []byte(appKey))
 	if err != nil {
-		c.Abort()
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 	c.Set("username", claims.Foo)

@@ -71,5 +71,4 @@ var codeMsg = map[int]string{
 
 func GetErrMsg(code int) string {
 	return codeMsg[code]
-
 }
