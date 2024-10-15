@@ -22,18 +22,21 @@ const (
 	ERROR_CATEGORY_BY_ID_NOT_EXIST
 	ERROR_CATEGORY_UPDATE_FAIL
 	// 文章帖子
-	ERROR_ARTICLE_CONTENT = iota + 4001
+	ERROR_REQUERY_ARG_WRONG = 4000
+	ERROR_ARTICLE_CONTENT   = iota + 4001
 	ERROR_ARTICLE_ERROR
 	ERROR_ARTICLE_ADD_FAIL
 	ERROR_ARTICLE_UPDATE_FAIL
 	ERROR_ARTICLE_DELETE_FAIL
+	ERROR_TYPE_ASSERTION
 )
 
 var codeMsg = map[int]string{
 
 	SUCCESS: "OK",
 	ERROR:   "FAIL",
-
+	// 请求参数错误
+	ERROR_REQUERY_ARG_WRONG: "请求参数错误",
 	// 用户模块
 	// 用户名或或密码错误
 	ERROR_USERNAME_OR_PASSWORD_WRONG: "用户名或密码错误",
@@ -58,7 +61,7 @@ var codeMsg = map[int]string{
 	REEOR_CATE_ADD_FAIL: "添加分类失败",
 
 	//文章模块
-
+	ERROR_TYPE_ASSERTION: "类型错误的",
 	// 没用文章内容
 	ERROR_ART_NOT_EXIST:       "文章不存在",
 	ERROR_ARTICLE_CONTENT:     "没有文章内容",

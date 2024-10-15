@@ -9,7 +9,7 @@ import { Box } from "@mui/material";
 import SubMenu from "./SubMenu";
 
 import * as blog from "../blog"
-import post from "../blog/post"
+import post from "../blog/article"
 import categories from "../blog/categories"
 type MenuName = 'menuCatalog' | 'menuSales' | 'menuCustomers';
 
@@ -48,7 +48,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 dense={dense}
             >
                 <MenuItemLink
-                    to="/posts"
+                    to="/article"
                     state={{ _scrollToTop: true }}
                     primaryText="部门管理"
                     leftIcon={<post.icon />}
@@ -84,7 +84,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 dense={dense}
             >
                 <MenuItemLink
-                    to="/posts"
+                    to="/article"
                     state={{ _scrollToTop: true }}
                     primaryText="文章"
                     leftIcon={<post.icon />}
@@ -106,7 +106,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 dense={dense}
             >
                 <MenuItemLink
-                    to="/posts"
+                    to="/article"
                     state={{ _scrollToTop: true }}
                     primaryText="商品管理"
                     leftIcon={<post.icon />}

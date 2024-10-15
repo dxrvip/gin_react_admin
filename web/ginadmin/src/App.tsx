@@ -9,7 +9,7 @@ import dataProvider from "./utils/dataProvider";
 import { authProvider } from "./utils/authProvider";
 
 import i18nProvider from "./utils/i18nProvider"
-import post from "./blog/post"
+import article from "./blog/article"
 import categories from "./blog/categories"
 import { ProfileEdit } from "./user";
 export const App = () => (
@@ -25,8 +25,8 @@ export const App = () => (
     </CustomRoutes>
   
     <Resource
-      name="posts"
-      {...post}
+      name="article"
+      {...article}
     />
 
     <Resource

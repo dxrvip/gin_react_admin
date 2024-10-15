@@ -2,6 +2,7 @@ package api
 
 import (
 	"goVueBlog/models"
+	"goVueBlog/service"
 	"goVueBlog/utils"
 	"goVueBlog/utils/errmsg"
 	"log"
@@ -10,6 +11,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type UserApi struct {
+	BaseApi
+	Service *service.UserService
+}
+
+func NewUserApi() *UserApi {
+	return &UserApi{
+		BaseApi: NewBaseApi(),
+		Service: service.NewUserService(),
+	}
+}
 
 type LoginRequest struct {
 	Username string `json:"username" binding:"required,len=6"`
@@ -42,7 +55,7 @@ type ErrorResponse struct {
 // @Param register body RegisterRequest true "注册信息"
 // @Success 200 {string} userInfo
 // @Router /user/register [post]
-func Register(c *gin.Context) {
+func (m *UserApi) Register(c *gin.Context) {
 	// 拿到表单信息
 	var (
 		users models.User
@@ -58,7 +71,7 @@ func Register(c *gin.Context) {
 	}
 	// 处理表单验证通过
 	// 验证用户名是否存在
-	user, _ := models.GetUserByUsername(json.Username)
+	user, _ := m.Service.GetUserByUsername(json.Username)
 	if user.Username != "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "用户名已存在",
@@ -77,7 +90,7 @@ func Register(c *gin.Context) {
 	// 	return
 	// }
 	users.Password = json.Password
-	models.CreateUser(&users)
+	m.Service.CreateUser(&users)
 	// 生成token
 	token, err := utils.GenerateToken(users.Username, int(users.ID))
 	if err != nil {
@@ -99,7 +112,7 @@ func Register(c *gin.Context) {
 // @Param login body LoginRequest true "登录信息"
 // @Success 200 {object} UserResponse
 // @Router /user/login [post]
-func Login(c *gin.Context) {
+func (m *UserApi) Login(c *gin.Context) {
 	var (
 		json LoginRequest
 		data UserResponse
@@ -116,7 +129,7 @@ func Login(c *gin.Context) {
 		return
 	}
 	// 获取数据库中密码
-	user, err := models.GetUserByUsername(json.Username)
+	user, err := m.Service.GetUserByUsername(json.Username)
 	if err != nil || user == nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": code,
@@ -162,10 +175,10 @@ func Login(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} UserResponse
 // @Router /user/info [get]
-func Info(g *gin.Context) {
+func (m *UserApi) Info(g *gin.Context) {
 	username := g.MustGet("username")
 	// fmt.Println(claims)
-	if user, _ := models.GetUserByUsername(username.(string)); user.Username != "" {
+	if user, _ := m.Service.GetUserByUsername(username.(string)); user.Username != "" {
 		g.JSON(http.StatusBadRequest, gin.H{
 			"data":    user,
 			"message": "获取成功",
@@ -186,11 +199,11 @@ func Info(g *gin.Context) {
 // @Param id path int true "用户ID"
 // @Success 200 {object} UserResponse
 // @Router /user/{id} [delete]
-func Delete(c *gin.Context) {
+func (m *UserApi) Delete(c *gin.Context) {
 	// 实现删除用户的逻辑
 	id := c.Param("id")
 	i, _ := strconv.Atoi(id)
-	if models.DeleteUser(uint(i)) == nil {
+	if m.Service.DeleteUser(uint(i)) == nil {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "删除成功",
 		})
@@ -206,7 +219,7 @@ func Delete(c *gin.Context) {
 // @Param body body UserUpdateRequest true "用户信息"
 // @Success 200 {object} UserResponse
 // @Router /user/{id} [put]
-func Update(c *gin.Context) {
+func (m *UserApi) Update(c *gin.Context) {
 	// 实现修改用户信息的逻辑
 	id, _ := strconv.Atoi(c.Param("id"))
 	var json UserUpdateRequest
@@ -216,7 +229,7 @@ func Update(c *gin.Context) {
 		})
 		return
 	}
-	if models.UpdateUser(uint(id), json.Username) == nil {
+	if m.Service.UpdateUser(uint(id), json.Username) == nil {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "修改成功",
 		})

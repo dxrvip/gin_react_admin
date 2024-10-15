@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"goVueBlog/models"
-	"goVueBlog/modules"
+	"goVueBlog/service"
+	"goVueBlog/utils"
 	"goVueBlog/utils/errmsg"
 	"net/http"
 	"strconv"
@@ -12,8 +13,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type CategoryApi struct {
+	BaseApi
+	Service *service.CategoryService
+}
+
 type CategoryRequest struct {
 	Name string `json:"name" binding:"required"`
+}
+
+func NewCategoryApi() *CategoryApi {
+	return &CategoryApi{
+		BaseApi: NewBaseApi(),
+		Service: service.NewCateGoryService(),
+	}
 }
 
 // AddCategory
@@ -24,7 +37,7 @@ type CategoryRequest struct {
 // @Param data body CategoryRequest true "分类名称"
 // @Success 200 {string} json "{"code":200,"data":{},"msg":"ok"}"
 // @Router /category [post]
-func AddCategory(c *gin.Context) {
+func (m CategoryApi) AddCategory(c *gin.Context) {
 	// 获取请求参数
 	var (
 		req  CategoryRequest
@@ -37,7 +50,7 @@ func AddCategory(c *gin.Context) {
 	}
 	var category models.Category
 	category.Name = req.Name
-	if err := models.CreateCategory(&category); err != nil {
+	if err := m.Service.CreateCategory(&category); err != nil {
 		code = errmsg.REEOR_CATE_ADD_FAIL
 		c.JSON(http.StatusOK, gin.H{"msg": errmsg.GetErrMsg(code), "code": code})
 		return
@@ -56,7 +69,7 @@ func AddCategory(c *gin.Context) {
 // @Accept json
 // @Success 200 {string} json [{}]
 // @Router /category [get]
-func GetCategoryList(c *gin.Context) {
+func (m *CategoryApi) GetCategoryList(c *gin.Context) {
 	// 获取分类列表
 
 	// 获取查询参数
@@ -86,20 +99,18 @@ func GetCategoryList(c *gin.Context) {
 		code       int
 	)
 
-	categoriesPointer, totalCount, err := models.GetCategoryList(skip, limit, sortArr)
+	categoriesPointer, totalCount, err := m.Service.GetCategoryList(skip, limit, sortArr)
 	if err != nil {
 		code = errmsg.ERROR_ARTICLE_CONTENT
 		c.JSON(http.StatusOK, gin.H{"msg": errmsg.GetErrMsg(code), "code": code})
 		return
 	}
 	categories = *categoriesPointer
-	c.Header("Content-Range", fmt.Sprintf("%d-%d/%d", skip, skip+len(categories), totalCount))
-	c.Header("Content-Type", "application/json")
-	modules.Success(c, modules.Response{
-		Code:  code,
-		Data:  categories,
-		Total: totalCount,
-	})
+	rs := fmt.Sprintf("%d-%d/%d", skip, skip+len(categories), totalCount)
+	utils.Success(c, utils.Response{
+		Code: code,
+		Data: categories,
+	}, rs)
 }
 
 // UpdateCategory
@@ -111,7 +122,7 @@ func GetCategoryList(c *gin.Context) {
 // @Accept json
 // @Success 200 {string} models.Category
 // @Router /category/{id} [put]
-func UpdateCategory(c *gin.Context) {
+func (m *CategoryApi) UpdateCategory(c *gin.Context) {
 	// 修改分类
 	var (
 		code     int
@@ -129,7 +140,7 @@ func UpdateCategory(c *gin.Context) {
 		return
 	}
 	// 修改
-	if err := models.UpdateCategoryByID(uint(id), &jsonData); err != nil {
+	if err := m.Service.UpdateCategoryByID(uint(id), &jsonData); err != nil {
 		code = errmsg.ERROR_CATEGORY_UPDATE_FAIL
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": errmsg.GetErrMsg(code), "code": code})
 		return
@@ -145,7 +156,7 @@ func UpdateCategory(c *gin.Context) {
 // @Accept json
 // @Success 200 {string} models.Category
 // @Router /category/{id} [get]
-func GetCategoryById(c *gin.Context) {
+func (m *CategoryApi) GetCategoryById(c *gin.Context) {
 	// 根据分类id获取分类详情的逻辑
 	id := c.Param("id")
 	var (
@@ -158,7 +169,7 @@ func GetCategoryById(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"msg": errmsg.GetErrMsg(code), "code": code})
 		return
 	}
-	category, err := models.GetCategoryByID(uint(idInt))
+	category, err := m.Service.GetCategoryByID(uint(idInt))
 	if err != nil {
 		code = errmsg.ERROR_CATENAME_EXITS
 		c.JSON(http.StatusOK, gin.H{"msg": errmsg.GetErrMsg(code), "code": code})
@@ -175,7 +186,7 @@ func GetCategoryById(c *gin.Context) {
 // @Accept json
 // @Success 200 {string} json [{}]
 // @Router /category/{id} [delete]
-func DeleteCategory(c *gin.Context) {
+func (m *CategoryApi) DeleteCategory(c *gin.Context) {
 	var (
 		code int
 	)
@@ -186,13 +197,13 @@ func DeleteCategory(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": errmsg.GetErrMsg(code), "code": code})
 		return
 	}
-	if !models.IsCategoryExistByID(uint(id)) {
+	if !m.Service.IsCategoryExistByID(uint(id)) {
 		code = errmsg.ERROR_CATENAME_EXITS
 		c.JSON(http.StatusBadRequest, gin.H{"msg": errmsg.GetErrMsg(code), "code": code})
 		return
 
 	}
-	if err := models.DeleteCategoryByID(uint(id)); err != nil {
+	if err := m.Service.DeleteCategoryByID(uint(id)); err != nil {
 		code = errmsg.ERROR
 		c.JSON(http.StatusBadRequest, gin.H{"msg": errmsg.GetErrMsg(code), "code": code})
 		return

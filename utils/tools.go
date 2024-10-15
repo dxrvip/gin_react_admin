@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v5"
@@ -89,4 +91,19 @@ func GenerateRandomString(length int) string {
 		result[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(result)
+}
+
+// 将json字符串转成json
+func StringToJson(strJson any) any {
+	str := strJson.(string)
+	if strings.HasPrefix(str, "{") && strings.HasSuffix(str, "}") {
+		var parameter interface{}
+		_ = json.Unmarshal([]byte(str), &parameter)
+		return parameter
+	} else {
+		// 数组内包含json
+		var parameter []interface{}
+		_ = json.Unmarshal([]byte(str), &parameter)
+		return parameter
+	}
 }
