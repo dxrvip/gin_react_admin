@@ -2,6 +2,7 @@ package service
 
 import (
 	"goVueBlog/models"
+	"time"
 )
 
 var articleService *ArticleService
@@ -21,11 +22,12 @@ func NewArticleService() *ArticleService {
 
 // 序列化器
 type ArticleRequry struct {
-	Title   string         `json:"title" binding:"required,min=4,max=100"`
-	Content string         `json:"content" binding:"required,min=4,max=10000"`
-	Cid     int            `json:"cid" binding:"required,min=1"`
-	Desc    string         `json:"desc" binding:"omitempty,max=255"`
-	Picture models.Picture `json:"picture" binding:"omitempty"`
+	Title     string         `json:"title" binding:"required,min=4,max=100"`
+	Content   string         `json:"content" binding:"required,min=4,max=10000"`
+	Cid       int            `json:"cid" binding:"required,min=1"`
+	Desc      string         `json:"desc" binding:"omitempty,max=255"`
+	Picture   models.Picture `json:"picture" binding:"omitempty"`
+	CreatedAt time.Time      `json:"create_time"binding:"omitempty"`
 }
 
 type ArticleResponse struct {

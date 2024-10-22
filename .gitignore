@@ -23,3 +23,5 @@ logs/*.log.*
 # 忽略环境文件
 web/ginadmin/.env
 web/ginadmin/.env.production
+
+__debug_*

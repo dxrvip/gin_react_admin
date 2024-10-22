@@ -7,7 +7,7 @@ import (
 	"goVueBlog/service/serializer"
 	"goVueBlog/utils"
 	"goVueBlog/utils/errmsg"
-	"reflect"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,25 +35,13 @@ func (p *ArticleApi) CreateArticle(c *gin.Context) {
 	if err := p.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
 		return
 	}
-	// 创建一个映射以存储字段名和对应的值
-	datas := map[string]any{}
-
-	// 使用反射遍历结构体字段
-	v := reflect.ValueOf(params)
-	t := reflect.TypeOf(params)
-
-	for i := 0; i < v.NumField(); i++ {
-		field := t.Field(i)
-		value := v.Field(i)
-
-		// 将字段名和对应的值存入 map
-		datas[field.Name] = value.Interface()
-	}
-	if err := p.Service.Create(&datas); err != nil {
+	params.CreatedAt = time.Now()
+	result, err := p.Service.Create(params)
+	if err != nil {
 		p.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_ADD_FAIL})
 		return
 	}
-	p.Ok(utils.Response{Code: errmsg.SUCCESS, Data: datas}, "")
+	p.Ok(utils.Response{Code: errmsg.SUCCESS, Data: result}, "")
 }
 
 // PostList

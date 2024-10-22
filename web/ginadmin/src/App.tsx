@@ -11,7 +11,11 @@ import { authProvider } from "./utils/authProvider";
 import i18nProvider from "./utils/i18nProvider"
 import article from "./blog/article"
 import categories from "./blog/categories"
-import { ProfileEdit } from "./user";
+import user from "./system/user";
+import department from "./system/department";
+import news from "./system/news";
+import role from "./system/role";
+
 export const App = () => (
   <Admin
     layout={Layout}
@@ -21,9 +25,24 @@ export const App = () => (
     authProvider={authProvider}
   >
     <CustomRoutes>
-      <Route path="/profile" element={<ProfileEdit />} />
+      <Route path="/profile" element={<user.edit />} />
     </CustomRoutes>
-  
+    <Resource
+      name="user"
+      {...user}
+    />
+    <Resource
+      name="role"
+      {...role}
+    />
+    <Resource
+      name="news"
+      {...news}
+    />
+    <Resource
+      name="department"
+      {...department}
+    />
     <Resource
       name="article"
       {...article}

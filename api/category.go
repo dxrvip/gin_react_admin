@@ -43,16 +43,15 @@ func (m CategoryApi) AddCategory(c *gin.Context) {
 		m.Fail(utils.Response{Code: errmsg.ERROR_CATENAME_FORMAT})
 		return
 	}
-	var params = map[string]any{
-		"Name": req.Name,
-	}
-	if err := m.Service.Create(&params); err != nil {
+
+	result, err := m.Service.Create(&req)
+	if err != nil {
 		m.Fail(utils.Response{Code: errmsg.REEOR_CATE_ADD_FAIL})
 		return
 	}
 
 	// 添加成功返回信息
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: params}, "")
+	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: result}, "")
 
 }
 

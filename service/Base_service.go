@@ -23,8 +23,18 @@ func NewBaseApi(model interface{}) BaseService {
 }
 
 // 添加数据
-func (m *BaseService) Create(params interface{}) (err error) {
-	err = m.DB.Model(m.Model).Create(params).Error
+func (m *BaseService) Create(params interface{}) (mapData map[string]any, err error) {
+	mapData = map[string]any{}
+
+	v := reflect.ValueOf(params)
+	t := reflect.TypeOf(params)
+	for i := 0; i < v.NumField(); i++ {
+		field := t.Field(i)
+		value := v.Field(i)
+		mapData[field.Name] = value.Interface()
+	}
+
+	err = m.DB.Model(m.Model).Create(&mapData).Error
 	return
 }
 
