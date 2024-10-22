@@ -35,7 +35,7 @@ const dataProvider = withLifecycleCallbacks(
     simpleRestProvider(import.meta.env.VITE_SIMPLE_REST_URL, fetchJson),
     [
         {
-            resource: "posts",
+            resource: "article",
             beforeSave: async (params: any, dataProvider: DataProvider) => {
                 if (params.picture.rawFile) {
                     const response = await fetch(

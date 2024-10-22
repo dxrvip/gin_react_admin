@@ -12,7 +12,7 @@ type Article struct {
 	Cid          int     `gorm:"type:int;not null" json:"cid"`
 	Desc         string  `gorm:"type:varchar(200)" json:"desc"`
 	Content      string  `gorm:"type:longtext" json:"content"`
-	Picture      Picture `gorm:"type:json" json:"img"`
+	Picture      Picture `gorm:"type:json" json:"picture"`
 	CommentCount int     `gorm:"type:int;not null;default:0" json:"comment_count"`
 	ReadCount    int     `gorm:"type:int;not null;default:0" json:"read_count"`
 }

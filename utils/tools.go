@@ -94,15 +94,15 @@ func GenerateRandomString(length int) string {
 }
 
 // 将json字符串转成json
-func StringToJson(strJson any) any {
+func StringToJson(strJson any) map[string]interface{} {
 	str := strJson.(string)
 	if strings.HasPrefix(str, "{") && strings.HasSuffix(str, "}") {
-		var parameter interface{}
+		var parameter map[string]interface{}
 		_ = json.Unmarshal([]byte(str), &parameter)
 		return parameter
 	} else {
 		// 数组内包含json
-		var parameter []interface{}
+		var parameter map[string]interface{}
 		_ = json.Unmarshal([]byte(str), &parameter)
 		return parameter
 	}

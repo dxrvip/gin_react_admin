@@ -13,7 +13,7 @@ type ArticleService struct {
 func NewArticleService() *ArticleService {
 	if articleService == nil {
 		return &ArticleService{
-			BaseService: NewBaseApi(),
+			BaseService: NewBaseApi(models.Article{}),
 		}
 	}
 	return articleService
@@ -25,7 +25,7 @@ type ArticleRequry struct {
 	Content string         `json:"content" binding:"required,min=4,max=10000"`
 	Cid     int            `json:"cid" binding:"required,min=1"`
 	Desc    string         `json:"desc" binding:"omitempty,max=255"`
-	Img     models.Picture `json:"img" binding:"omitempty,url"`
+	Picture models.Picture `json:"picture" binding:"omitempty"`
 }
 
 type ArticleResponse struct {
@@ -33,15 +33,16 @@ type ArticleResponse struct {
 	Title     string         `json:"title"`
 	Content   string         `json:"content"`
 	Desc      string         `json:"desc"`
-	Picture   models.Picture `json:"img"`
+	Picture   models.Picture `json:"picture"`
 	Cid       int            `json:"cid"`
-	CreatedAt string         `json:"author"`
+	CreatedAt string         `json:"create_time"`
 }
 
 // 根据id查询文章
-func (m *ArticleService) GetArticleById(id int) (*models.Article, error) {
-	var post models.Article
-	return &post, m.DB.First(&post, id).Error
+func (m *ArticleService) GetArticleById(id uint) (*ArticleResponse, error) {
+	var responses ArticleResponse
+	err := m.GetDataByID(id, &responses)
+	return &responses, err
 }
 
 // 更新文章

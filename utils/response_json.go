@@ -9,11 +9,10 @@ import (
 )
 
 type Response struct {
-	Code  int         `json:"code"`
-	Data  any         `json:"data,omitempty"`
-	Msg   string      `json:"message,omitempty"`
-	Err   interface{} `json:"err,omitempty"`
-	Range string      `json:"range,omitempty"`
+	Code int         `json:"code"`
+	Data any         `json:"data,omitempty"`
+	Msg  string      `json:"message,omitempty"`
+	Err  interface{} `json:"err,omitempty"`
 }
 
 func (r *Response) IsEmpty() bool {
@@ -25,15 +24,20 @@ func HttpResopnse(ctx *gin.Context, status int, resp *Response) {
 		ctx.AbortWithStatus(status)
 		return
 	}
+	if resp.Msg == "" {
 
-	resp.Msg = errmsg.GetErrMsg(resp.Code)
+		resp.Msg = errmsg.GetErrMsg(resp.Code)
+	}
 	ctx.AbortWithStatusJSON(status, resp)
 }
 
-func Success(ctx *gin.Context, resp Response, rs string) {
-	if rs != "" {
+func Success(ctx *gin.Context, resp Response, rs any) {
+
+	// 检查 Data 是否为切片类型
+	respDataValue := reflect.ValueOf(resp.Data)
+	if respDataValue.Kind() == reflect.Slice {
 		// 添加一个返回协议头
-		ctx.Header("Content-Range", rs)
+		ctx.Header("Content-Range", rs.(string))
 		ctx.Header("Content-Type", "application/json")
 	}
 	HttpResopnse(ctx, http.StatusOK, &resp)

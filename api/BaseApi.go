@@ -83,23 +83,38 @@ type BinldQueryOtpons struct {
 	Querys *serializer.CommonQueryOtpones
 }
 
+const (
+	defaultFilter = "{}"
+	defaultSort   = `["id","ASC"]`
+	defaultRange  = `[0,10]`
+)
+
 // 对query数据进行解析
 func (b *BaseApi) ResolveQueryParams(option BinldQueryOtpons) *BaseApi {
 	// 将Query取出来
 	b.Ctx = option.Ctx
 	// 对数据进行转换
-	option.Querys.Filter = utils.StringToJson(b.Ctx.DefaultQuery("filter", "{}")) // 字符串转json
-	option.Querys.Ranges = b.ParamQuery(b.Ctx.DefaultQuery("ranges", "[0,10]"))   // 对字符串分页进行转换
-	option.Querys.Sort = b.ParamQuery(b.Ctx.DefaultQuery("sort", "['id', 'desc']"))
+	option.Querys.Filter = utils.StringToJson(b.Ctx.DefaultQuery("filter", defaultFilter)) // 字符串转json
+	result := b.Ctx.DefaultQuery("sort", "")
+	if result != "" {
+
+		var sort []string
+		_ = json.Unmarshal([]byte(result), &sort)
+		option.Querys.Sort.Field = sort[0]
+		option.Querys.Sort.Md = sort[1]
+	}
+
+	result = b.Ctx.DefaultQuery("range", "")
+	if result != "" {
+
+		var rangea []int
+		_ = json.Unmarshal([]byte(result), &rangea)
+		option.Querys.Ranges.Skip = rangea[0]
+		option.Querys.Ranges.Limit = rangea[1] - rangea[0] + 1
+	}
 
 	return b
 
-}
-
-func (b *BaseApi) ParamQuery(text string) []any {
-	var parater []any
-	_ = json.Unmarshal([]byte(text), &parater)
-	return parater
 }
 
 func (b *BaseApi) AddError(err error) {
@@ -111,12 +126,11 @@ func (b *BaseApi) GetError() error {
 }
 
 func (b *BaseApi) Fail(resp utils.Response) {
-	globar.Logger.Fatalf("错误代码：%d,错误信息：%s", resp.Code, resp.Msg)
 	utils.Fails(b.Ctx, resp)
 }
 
-func (b *BaseApi) Ok(resp utils.Response) {
-	utils.Success(b.Ctx, resp, "")
+func (b *BaseApi) Ok(resp utils.Response, rs string) {
+	utils.Success(b.Ctx, resp, rs)
 }
 
 func (m *BaseApi) ServerFail(resp utils.Response) {

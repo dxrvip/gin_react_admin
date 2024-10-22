@@ -15,7 +15,7 @@ type UserService struct {
 func NewUserService() *UserService {
 	if userService == nil {
 		return &UserService{
-			BaseService: NewBaseApi(),
+			BaseService: NewBaseApi(models.User{}),
 		}
 	}
 	return userService

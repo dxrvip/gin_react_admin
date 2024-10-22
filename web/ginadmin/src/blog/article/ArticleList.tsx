@@ -19,7 +19,7 @@ const postFilters = [
 
 
 const ArticleList = () => (
-    <List filter={{"title": "fas"}} filters={postFilters}>
+    <List filters={postFilters}>
         <Datagrid>
             <TextField source="id" />
             <TextField source="title" />
