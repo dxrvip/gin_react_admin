@@ -13,7 +13,7 @@ type UserService struct {
 }
 
 type LoginRequest struct {
-	Username string `json:"username" binding:"required,len=6"`
+	Username string `json:"username" binding:"required,min=3,max=50"`
 	Password string `json:"password" binding:"required,min=6,max=20"`
 }
 
@@ -22,9 +22,9 @@ type RegisterData struct {
 	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
 	Role       uint   `json:"role" binding:"required,gte=1" label:"角色码"`
 	NikeName   string `json:"nikeName" binding:"min=2,max=50" label:"昵称"`
-	Email      string `json:"email" binding:"usage=email" label:"邮箱"`
-	Active     bool   `json:"active" binding:"required,default=true" label:"状态"`
-	Gender     string `json:"gender" binding:"required,defalut:other" label:"性别"`
+	Email      string `json:"email" binding:"email" label:"邮箱"`
+	Active     bool   `json:"active" binding:"required" label:"状态"`
+	Gender     string `json:"gender" binding:"required" label:"性别"`
 }
 type ResponseUser struct {
 	ID       uint   `json:"id"`
@@ -45,17 +45,15 @@ func NewUserService() *UserService {
 	return userService
 }
 
-func (m *UserService) CreateUser(p *RegisterData) (any, error) {
+func (m *UserService) CreateUser(p *models.User) (any, error) {
 	// 验证用户名是否存在
-	user, err := m.GetUserByUsername(p.Username)
+	user, _ := m.GetUserByUsername(p.Username)
 	if user.Username != "" {
 		return nil, errors.New("用户名已存在")
 	}
-	if err != nil {
-		return nil, err
-	}
+
 	// 存入数据库
-	if err := m.DB.Model(m.Model).Create(&p).Error; err != nil {
+	if err := m.DB.Create(&p).Error; err != nil {
 		return nil, err
 	}
 

@@ -5,6 +5,8 @@
 *.sublime-project    # Sublime Text
 .vscode/            # Visual Studio Code
 # 忽略logs文件夹下所有日志.txt文件
+web/ginadmin/node_modules/
+config/config*
 logs/*.txt
 # 忽略logs文件夹下所有以log结尾的文件
 logs/*.log

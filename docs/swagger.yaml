@@ -53,6 +53,37 @@ definitions:
     - password
     - username
     type: object
+  service.RegisterData:
+    properties:
+      active:
+        type: boolean
+      email:
+        type: string
+      gender:
+        type: string
+      nikeName:
+        maxLength: 50
+        minLength: 2
+        type: string
+      password:
+        maxLength: 20
+        minLength: 6
+        type: string
+      re_password:
+        type: string
+      role:
+        minimum: 1
+        type: integer
+      username:
+        type: string
+    required:
+    - active
+    - gender
+    - password
+    - re_password
+    - role
+    - username
+    type: object
 info:
   contact: {}
 paths:
@@ -395,7 +426,7 @@ paths:
         name: register
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/service.RegisterData'
       responses:
         "200":
           description: OK

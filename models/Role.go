@@ -3,7 +3,8 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"errors"
+
+	"gorm.io/gorm"
 )
 
 type Role struct {
@@ -12,19 +13,17 @@ type Role struct {
 	Key    string   `gorm:"type:string;size:50;not null;comment:权限标识符"`
 	Sort   uint     `gorm:"type:uint;default:0;comment:排序顺序"`
 	Active bool     `gorm:"type:bool;default:true;comment:是否启用"`
-	Menu   []string `gorm:"type:json;comment:菜单"`
+	Menus  []string `gorm:"type:json;comment:菜单"`
 }
 
-// Value实现数据库序列化的driver.Valuer接口
-func (p Role) Value() (driver.Value, error) {
-	return json.Marshal(p)
-}
-
-// Scan实现数据库反序列化的sql.Scanner接口
-func (p *Role) Scan(value interface{}) error {
-	bytes, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
+// BeforeCreate 在插入之前序列化 Menus 字段
+func (r *Role) Value(tx *gorm.DB) (driver.Value, error) {
+	if len(r.Menus) > 0 {
+		menusJSON, err := json.Marshal(r.Menus)
+		if err != nil {
+			return "[]", nil
+		}
+		return menusJSON, nil
 	}
-	return json.Unmarshal(bytes, p)
+	return "[]", nil
 }

@@ -44,7 +44,7 @@ func (b *BaseApi) BindResquest(option BindRequestOtpons) *BaseApi {
 		if option.BindUri {
 			errResult = utils.AppendError(errResult, b.Ctx.ShouldBindUri(option.Ser))
 		} else {
-			errResult = utils.AppendError(errResult, b.Ctx.ShouldBindJSON(option.Ser))
+			errResult = utils.AppendError(errResult, b.Ctx.ShouldBind(option.Ser))
 		}
 		if errResult != nil {
 			b.AddError(errResult)

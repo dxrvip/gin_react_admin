@@ -468,7 +468,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/service.RegisterData"
                         }
                     }
                 ],
@@ -620,6 +620,48 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 20,
                     "minLength": 6
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.RegisterData": {
+            "type": "object",
+            "required": [
+                "active",
+                "gender",
+                "password",
+                "re_password",
+                "role",
+                "username"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "nikeName": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 6
+                },
+                "re_password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "integer",
+                    "minimum": 1
                 },
                 "username": {
                     "type": "string"
