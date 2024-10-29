@@ -32,41 +32,21 @@ func InitUrlsRouter() *gin.Engine {
 	// swag
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	// 图片上传路由
-
 	//=================================================
 	//=> 用户路由
-	user := v1.Group("/user")
-	user.GET("/info", apiUser.Info)
-	user.DELETE("/:id", apiUser.Delete)
-	user.PUT("/:id", apiUser.Update)
+	RegisterUserUrl(v1, apiUser)
 	//=================================================
 	//=> 文章路由
-	articleApi := api.NewArticleApi()
-	article := v1.Group("/article")
-	{
-		// 添加路由
-		article.GET("", articleApi.ArticleList)
-		article.PUT("/:id", articleApi.ArticleUpdate)
-		article.GET("/:id", articleApi.ArticleInfo)
-
-		article.DELETE("/:id", articleApi.ArticleDelete)
-		article.POST("", articleApi.CreateArticle)
-	}
+	RegisterBlogUrls(v1)
 	//=================================================
 	//=> 分类路由
-	categoryApi := api.NewCategoryApi()
-	category := v1.Group("/category")
-	{
-		category.GET("", categoryApi.GetCategoryList)
+	RegisterCategoryUrls(v1)
 
-		category.POST("", categoryApi.AddCategory)
-		category.GET("/:id", categoryApi.GetCategoryById)
-		category.PUT("/:id", categoryApi.UpdateCategory)
-
-		category.DELETE("/:id", categoryApi.DeleteCategory)
-	}
-	//
+	//=> 菜单路由
+	RegisterSystemUrls(v1)
+	//=> 角色路由
+	RegisterRoleUrls(v1)
+	//=> 文件上传
 	v1.GET("/auto/upload", api.UploadImage)
 	return r
 }

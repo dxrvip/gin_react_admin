@@ -1,11 +1,10 @@
 package api
 
 import (
-	"goVueBlog/models"
 	"goVueBlog/service"
+	"goVueBlog/service/serializer"
 	"goVueBlog/utils"
 	"goVueBlog/utils/errmsg"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -24,98 +23,47 @@ func NewUserApi() *UserApi {
 	}
 }
 
-type LoginRequest struct {
-	Username string `json:"username" binding:"required,len=6"`
-	Password string `json:"password" binding:"required,min=6,max=20"`
-}
-
-type UserUpdateRequest struct {
-	Username string `json:"username" binding:"required,len=6"`
-}
-
-type RegisterRequest struct {
-	LoginRequest
-	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
-}
-
-type UserResponse struct {
-	UserID   int    `json:"user_id"`
-	Username string `json:"username"`
-	FullName string `json:"full_name"`
-}
-
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
 // Register
 // @Summary 用户注册
 // @Tags 用户
 // @Accept json
-// @Param register body RegisterRequest true "注册信息"
+// @Param register body object true "注册信息"
 // @Success 200 {string} userInfo
 // @Router /user/register [post]
+// @Alias: 注册用户
+// @Description: 注册一个用户
 func (m *UserApi) Register(c *gin.Context) {
 	// 拿到表单信息
-	var (
-		users models.User
+	var params service.RegisterData
 
-		json RegisterRequest
-	)
-	if err := c.ShouldBindJSON(&json); err != nil {
-		log.Println(json)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
+
+		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
-	// 处理表单验证通过
-	// 验证用户名是否存在
-	user, _ := m.Service.GetUserByUsername(json.Username)
-	if user.Username != "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "用户名已存在",
-		})
-		return
-	}
-
-	// 存入数据库
-
-	users.Username = json.Username
-	//$2a$10$p29.OzqJkkjLyt4O6gqGYOOo2zSrp.dzPdOz/39SPPwIIMKTxPAhK
-	// if hashPassword, err = utils.EncryptPassword(json.Password); err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{
-	// 		"error": "加密密码失败",
-	// 	})
-	// 	return
-	// }
-	users.Password = json.Password
-	m.Service.CreateUser(&users)
-	// 生成token
-	token, err := utils.GenerateToken(users.Username, int(users.ID))
+	token, err := m.Service.CreateUser(&params)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "生成token失败"})
+		m.Fail(utils.Response{Code: errmsg.ERROR_USERNAME_USED, Msg: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Login successful",
-		"token":   token,
-	})
 
+	m.Ok(utils.Response{
+		Code: errmsg.SUCCESS,
+		Data: token,
+	}, "")
 }
 
 // Login
 // @Summary 用户登录
 // @Tags 用户
 // @Accept json
-// @Param login body LoginRequest true "登录信息"
-// @Success 200 {object} UserResponse
+// @Param login body service.LoginRequest true "登录信息"
+// @Success 200
 // @Router /user/login [post]
 func (m *UserApi) Login(c *gin.Context) {
 	var (
-		json LoginRequest
-		data UserResponse
+		json service.LoginRequest
+		data service.ResponseUser
 		code int
 	)
 
@@ -159,7 +107,7 @@ func (m *UserApi) Login(c *gin.Context) {
 		return
 	}
 	data.Username = user.Username
-	data.UserID = int(user.ID)
+	data.ID = user.ID
 	code = errmsg.SUCCESS
 	c.JSON(http.StatusOK, gin.H{
 		"status": code,
@@ -169,11 +117,31 @@ func (m *UserApi) Login(c *gin.Context) {
 	})
 }
 
+// List
+// @Summary 用户列表
+// @Tags 用户
+// @Param Authorization header string true "Bearer token"
+func (m *UserApi) List(c *gin.Context) {
+	var quers serializer.CommonQueryOtpones
+	if err := m.ResolveQueryParams(BinldQueryOtpons{Ctx: c, Querys: &quers}).GetError(); err != nil {
+		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+		return
+	}
+
+	var datas []service.ResponseUser
+	re, err := m.Service.List(&datas, &quers)
+	if err != nil {
+		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+		return
+	}
+	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: datas}, re)
+}
+
 // Info
 // @Summary 获取用户信息
 // @Tags 用户
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} UserResponse
+// @Success 200
 // @Router /user/info [get]
 func (m *UserApi) Info(g *gin.Context) {
 	username := g.MustGet("username")
@@ -197,7 +165,7 @@ func (m *UserApi) Info(g *gin.Context) {
 // @Tags 用户
 // @Param Authorization header string true "Bearer token"
 // @Param id path int true "用户ID"
-// @Success 200 {object} UserResponse
+// @Success 200
 // @Router /user/{id} [delete]
 func (m *UserApi) Delete(c *gin.Context) {
 	// 实现删除用户的逻辑
@@ -216,13 +184,13 @@ func (m *UserApi) Delete(c *gin.Context) {
 // @Tags 用户
 // @Param Authorization header string true "Bearer token"
 // @Param id path int true "用户ID"
-// @Param body body UserUpdateRequest true "用户信息"
-// @Success 200 {object} UserResponse
+// @Param body body object true "用户信息"
+// @Success 200
 // @Router /user/{id} [put]
 func (m *UserApi) Update(c *gin.Context) {
 	// 实现修改用户信息的逻辑
 	id, _ := strconv.Atoi(c.Param("id"))
-	var json UserUpdateRequest
+	var json service.RegisterData
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),

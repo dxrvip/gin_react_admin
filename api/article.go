@@ -1,7 +1,7 @@
+/* 文章管理 */
 package api
 
 import (
-	"fmt"
 	"goVueBlog/models"
 	"goVueBlog/service"
 	"goVueBlog/service/serializer"
@@ -26,10 +26,11 @@ func NewArticleApi() ArticleApi {
 
 // @Summary 创建文章
 // @Tags 文章
-// @Param data body PostCreate true "文章"
+// @Param data body service.ArticleRequry true "文章"
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} object
 // @Router /article [post]
+// @Description: 创建一片文章
 func (p *ArticleApi) CreateArticle(c *gin.Context) {
 	var params service.ArticleRequry
 	if err := p.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
@@ -44,12 +45,12 @@ func (p *ArticleApi) CreateArticle(c *gin.Context) {
 	p.Ok(utils.Response{Code: errmsg.SUCCESS, Data: result}, "")
 }
 
-// PostList
+// ArticleList
 // @Summary 文章列表
 // @Tags 文章
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} object
-// @Router /posts [get]
+// @Router /article [get]
 func (m *ArticleApi) ArticleList(c *gin.Context) {
 	// 对查询参数进行解析
 	var querys serializer.CommonQueryOtpones
@@ -59,14 +60,13 @@ func (m *ArticleApi) ArticleList(c *gin.Context) {
 
 	// 将字符串进行切片 "[0,10]"
 	var datas []models.Article
-	total, error := m.Service.List(&datas, &querys)
+	rs, error := m.Service.List(&datas, &querys)
 	if error != nil {
 		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_CONTENT})
 		return
 	}
-	// 进行类型断言
-	rs := fmt.Sprintf("%d-%d/%d", querys.Ranges.Skip, querys.Ranges.Skip+len(datas), total)
-	utils.Success(c, utils.Response{Code: errmsg.SUCCESS, Data: datas}, rs)
+
+	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: datas}, rs)
 }
 
 // ArticleCreate
@@ -74,7 +74,7 @@ func (m *ArticleApi) ArticleList(c *gin.Context) {
 // @Tags 文章
 // @Param id path uint true "文章ID"
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} object ArticleResponse
+// @Success 200 {object} object
 // @Router /article/{id} [post]
 func (m *ArticleApi) ArticleInfo(c *gin.Context) {
 	var id serializer.CommonIDDTO

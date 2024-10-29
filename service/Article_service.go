@@ -27,7 +27,7 @@ type ArticleRequry struct {
 	Cid       int            `json:"cid" binding:"required,min=1"`
 	Desc      string         `json:"desc" binding:"omitempty,max=255"`
 	Picture   models.Picture `json:"picture" binding:"omitempty"`
-	CreatedAt time.Time      `json:"create_time"binding:"omitempty"`
+	CreatedAt time.Time      `json:"create_time" binding:"omitempty"`
 }
 
 type ArticleResponse struct {

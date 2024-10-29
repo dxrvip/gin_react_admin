@@ -4,6 +4,164 @@
         "contact": {}
     },
     "paths": {
+        "/article": {
+            "get": {
+                "tags": [
+                    "文章"
+                ],
+                "summary": "文章列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "文章"
+                ],
+                "summary": "创建文章",
+                "parameters": [
+                    {
+                        "description": "文章",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ArticleRequry"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/article/{id}": {
+            "put": {
+                "tags": [
+                    "文章"
+                ],
+                "summary": "更新 文章",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "文章ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "修改内容",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Article"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "文章"
+                ],
+                "summary": "获取文章",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "文章ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "文章"
+                ],
+                "summary": "删除文章",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "文章ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
         "/auto/upload": {
             "get": {
                 "tags": [
@@ -209,137 +367,13 @@
                 }
             }
         },
-        "/posts": {
+        "/systemMenu": {
             "get": {
                 "tags": [
-                    "文章"
+                    "菜单"
                 ],
-                "summary": "文章列表",
+                "summary": "菜单列表",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "文章"
-                ],
-                "summary": "创建文章",
-                "parameters": [
-                    {
-                        "description": "文章",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.PostCreate"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/posts/{id}": {
-            "put": {
-                "tags": [
-                    "文章"
-                ],
-                "summary": "更新 文章",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "文章ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "文章"
-                ],
-                "summary": "获取文章",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "文章ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "文章"
-                ],
-                "summary": "删除文章",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "文章ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "Bearer token",
@@ -375,10 +409,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.UserResponse"
-                        }
+                        "description": "OK"
                     }
                 }
             }
@@ -399,16 +430,13 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.LoginRequest"
+                            "$ref": "#/definitions/service.LoginRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.UserResponse"
-                        }
+                        "description": "OK"
                     }
                 }
             }
@@ -429,7 +457,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.RegisterRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -470,16 +498,13 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.UserUpdateRequest"
+                            "type": "object"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.UserResponse"
-                        }
+                        "description": "OK"
                     }
                 }
             },
@@ -506,10 +531,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.UserResponse"
-                        }
+                        "description": "OK"
                     }
                 }
             }
@@ -527,54 +549,59 @@
                 }
             }
         },
-        "api.LoginRequest": {
+        "models.Article": {
+            "type": "object"
+        },
+        "models.Picture": {
             "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
             "properties": {
-                "password": {
-                    "type": "string",
-                    "maxLength": 20,
-                    "minLength": 6
-                },
-                "username": {
+                "src": {
                     "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 100
                 }
             }
         },
-        "api.PostCreate": {
+        "service.ArticleRequry": {
             "type": "object",
+            "required": [
+                "cid",
+                "content",
+                "title"
+            ],
             "properties": {
                 "cid": {
-                    "type": "integer"
-                },
-                "comment_count": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 1
                 },
                 "content": {
+                    "type": "string",
+                    "maxLength": 10000,
+                    "minLength": 4
+                },
+                "create_time": {
                     "type": "string"
                 },
                 "desc": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 255
                 },
-                "img": {
-                    "type": "string"
-                },
-                "read_count": {
-                    "type": "integer"
+                "picture": {
+                    "$ref": "#/definitions/models.Picture"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 4
                 }
             }
         },
-        "api.RegisterRequest": {
+        "service.LoginRequest": {
             "type": "object",
             "required": [
                 "password",
-                "re_password",
                 "username"
             ],
             "properties": {
@@ -583,34 +610,6 @@
                     "maxLength": 20,
                     "minLength": 6
                 },
-                "re_password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.UserResponse": {
-            "type": "object",
-            "properties": {
-                "full_name": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.UserUpdateRequest": {
-            "type": "object",
-            "required": [
-                "username"
-            ],
-            "properties": {
                 "username": {
                     "type": "string"
                 }

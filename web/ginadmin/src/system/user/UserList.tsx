@@ -12,10 +12,10 @@ export function UserList(prop: any) {
         <List>
             <Datagrid>
                 <TextField source="id" />
-                <TextField source="title" />
-                <DateField source="published_at" />
-                <TextField source="category" />
-                <BooleanField source="commentable" />
+                <TextField source="username" />
+                <DateField source="nike_name" />
+                <TextField source="active" />
+                <BooleanField source="gender" />
             </Datagrid>
         </List>
     );

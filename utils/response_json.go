@@ -24,8 +24,8 @@ func HttpResopnse(ctx *gin.Context, status int, resp *Response) {
 		ctx.AbortWithStatus(status)
 		return
 	}
-	if resp.Msg == "" {
 
+	if resp.Msg == "" {
 		resp.Msg = errmsg.GetErrMsg(resp.Code)
 	}
 	ctx.AbortWithStatusJSON(status, resp)
@@ -39,6 +39,9 @@ func Success(ctx *gin.Context, resp Response, rs any) {
 		// 添加一个返回协议头
 		ctx.Header("Content-Range", rs.(string))
 		ctx.Header("Content-Type", "application/json")
+		if respDataValue.Len() <= 0 {
+			resp.Data = []any{}
+		}
 	}
 	HttpResopnse(ctx, http.StatusOK, &resp)
 }

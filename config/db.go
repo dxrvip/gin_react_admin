@@ -41,6 +41,11 @@ func DbInit() (DB *gorm.DB) {
 	sqlDb.SetConnMaxLifetime(10 * time.Hour)
 
 	// 数据迁移
-	_ = DB.AutoMigrate(&models.User{}, &models.Category{}, &models.Article{})
+	_ = DB.AutoMigrate(
+		&models.User{},
+		&models.Category{},
+		&models.Article{},
+		&models.Role{},
+	)
 	return
 }

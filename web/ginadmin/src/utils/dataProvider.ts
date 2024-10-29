@@ -29,7 +29,18 @@ const fetchJson = (url: string, options: any = {}) => {
     }
     return fetchUtils.fetchJson(url, options);
 }
+export interface PackageItem {
+    package: string;
+    func: FuncItem[];
+    id: number;
+}
 
+export interface FuncItem {
+    name: string;
+    alias: string;
+    description: string;
+    active: boolean;
+}
 
 const dataProvider = withLifecycleCallbacks(
     simpleRestProvider(import.meta.env.VITE_SIMPLE_REST_URL, fetchJson),
@@ -78,6 +89,19 @@ const dataProvider = withLifecycleCallbacks(
           
             },
         },
+        {
+            resource: "systemMenu",
+            afterGetList: async (data, dataProvider) => {
+                let idCounter = 1; // ID 计数器
+                (data as any).data.forEach((packageItem: PackageItem) => {
+                    packageItem['id'] = idCounter++
+                    packageItem.func.forEach((func: any) => {
+                        func['active'] = false
+                    })
+                })
+                return data
+            }
+        }
     ]
 )
 

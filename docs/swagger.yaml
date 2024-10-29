@@ -6,69 +6,160 @@ definitions:
     required:
     - name
     type: object
-  api.LoginRequest:
-    properties:
-      password:
-        maxLength: 20
-        minLength: 6
-        type: string
-      username:
-        type: string
-    required:
-    - password
-    - username
+  models.Article:
     type: object
-  api.PostCreate:
+  models.Picture:
+    properties:
+      src:
+        type: string
+      title:
+        maxLength: 100
+        type: string
+    type: object
+  service.ArticleRequry:
     properties:
       cid:
-        type: integer
-      comment_count:
+        minimum: 1
         type: integer
       content:
+        maxLength: 10000
+        minLength: 4
+        type: string
+      create_time:
         type: string
       desc:
+        maxLength: 255
         type: string
-      img:
-        type: string
-      read_count:
-        type: integer
+      picture:
+        $ref: '#/definitions/models.Picture'
       title:
+        maxLength: 100
+        minLength: 4
         type: string
+    required:
+    - cid
+    - content
+    - title
     type: object
-  api.RegisterRequest:
+  service.LoginRequest:
     properties:
       password:
         maxLength: 20
         minLength: 6
         type: string
-      re_password:
-        type: string
       username:
         type: string
     required:
     - password
-    - re_password
-    - username
-    type: object
-  api.UserResponse:
-    properties:
-      full_name:
-        type: string
-      user_id:
-        type: integer
-      username:
-        type: string
-    type: object
-  api.UserUpdateRequest:
-    properties:
-      username:
-        type: string
-    required:
     - username
     type: object
 info:
   contact: {}
 paths:
+  /article:
+    get:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 文章列表
+      tags:
+      - 文章
+    post:
+      parameters:
+      - description: 文章
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/service.ArticleRequry'
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 创建文章
+      tags:
+      - 文章
+  /article/{id}:
+    delete:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 删除文章
+      tags:
+      - 文章
+    post:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 获取文章
+      tags:
+      - 文章
+    put:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 修改内容
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Article'
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 更新 文章
+      tags:
+      - 文章
   /auto/upload:
     get:
       parameters:
@@ -204,7 +295,7 @@ paths:
       summary: 修改
       tags:
       - 分类管理
-  /posts:
+  /systemMenu:
     get:
       parameters:
       - description: Bearer token
@@ -217,91 +308,9 @@ paths:
           description: OK
           schema:
             type: object
-      summary: 文章列表
+      summary: 菜单列表
       tags:
-      - 文章
-    post:
-      parameters:
-      - description: 文章
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/api.PostCreate'
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: object
-      summary: 创建文章
-      tags:
-      - 文章
-  /posts/{id}:
-    delete:
-      parameters:
-      - description: 文章ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: object
-      summary: 删除文章
-      tags:
-      - 文章
-    post:
-      parameters:
-      - description: 文章ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: object
-      summary: 获取文章
-      tags:
-      - 文章
-    put:
-      parameters:
-      - description: 文章ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: object
-      summary: 更新 文章
-      tags:
-      - 文章
+      - 菜单
   /user/{id}:
     delete:
       parameters:
@@ -318,8 +327,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/api.UserResponse'
       summary: 删除用户
       tags:
       - 用户
@@ -340,12 +347,10 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/api.UserUpdateRequest'
+          type: object
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/api.UserResponse'
       summary: 修改用户信息
       tags:
       - 用户
@@ -360,8 +365,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/api.UserResponse'
       summary: 获取用户信息
       tags:
       - 用户
@@ -375,12 +378,10 @@ paths:
         name: login
         required: true
         schema:
-          $ref: '#/definitions/api.LoginRequest'
+          $ref: '#/definitions/service.LoginRequest'
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/api.UserResponse'
       summary: 用户登录
       tags:
       - 用户
@@ -394,7 +395,7 @@ paths:
         name: register
         required: true
         schema:
-          $ref: '#/definitions/api.RegisterRequest'
+          type: object
       responses:
         "200":
           description: OK

@@ -1,7 +1,7 @@
+/* 分类管理 */
 package api
 
 import (
-	"fmt"
 	"goVueBlog/models"
 	"goVueBlog/service"
 	"goVueBlog/service/serializer"
@@ -72,13 +72,12 @@ func (m *CategoryApi) GetCategoryList(c *gin.Context) {
 	// 获取分类列表的逻辑
 	var datas []models.Category
 
-	total, err := m.Service.List(&datas, &querys)
+	rs, err := m.Service.List(&datas, &querys)
 	if err != nil {
 		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_CONTENT})
 		return
 	}
 
-	rs := fmt.Sprintf("%d-%d/%d", querys.Ranges.Skip, querys.Ranges.Skip+len(datas), total)
 	m.Ok(utils.Response{
 		Code: m.Code,
 		Data: datas,

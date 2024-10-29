@@ -39,40 +39,56 @@ func (m *BaseService) Create(params interface{}) (mapData map[string]any, err er
 }
 
 // 查询所有数据
-func (m *BaseService) List(datas interface{}, params *serializer.CommonQueryOtpones) (int64, error) {
+const Empty string = "0-0/0"
+
+func (m *BaseService) List(datas interface{}, params *serializer.CommonQueryOtpones) (string, error) {
 	// 添加查询条件
-	fmt.Println(params)
 	query := m.DB.Model(&m.Model)
+	// 构建查询条件
 	for key, value := range params.Filter {
-		fmt.Printf("%s: %v\n", key, value)
-		if strings.HasPrefix(key, "q_") {
-			fieldStr := key[2:]
-			query = query.Where(fieldStr+" LIKE ?", "%"+value.(string)+"%")
-		} else if key == "id" {
-			query = query.Where(key+" in ?", value)
-		} else {
-			query = query.Where(key+" = ?", value)
+		if err := applyFilter(query, key, value); err != nil {
+			return "", err
 		}
 	}
 
 	var total int64
 	// 计算总数
 	if err := query.Count(&total).Error; err != nil {
-		return 0, err
+		return Empty, err
 	}
 	if total <= 0 {
-		return total, nil
-	} else {
-		if params.Sort.Field == "" {
+		return Empty, nil
+	}
+	v := reflect.ValueOf(datas)
+	// 检查是否为指针，并解引用
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	if params.Sort.Field == "" {
 
-			query = query.Find(datas)
-		} else {
-			sort := fmt.Sprintf("%s %s", params.Sort.Field, params.Sort.Md)
-			query = query.Order(sort).Offset(params.Ranges.Skip).Limit(params.Ranges.Limit).Find(datas)
-		}
-		return total, query.Error
+		query = query.Find(datas)
+	} else {
+		sort := fmt.Sprintf("%s %s", params.Sort.Field, params.Sort.Md)
+		query = query.Order(sort).Offset(params.Ranges.Skip).Limit(params.Ranges.Limit).Find(datas)
 	}
 
+	rs := fmt.Sprintf("%d-%d/%d", params.Ranges.Skip, params.Ranges.Skip+v.Len(), total)
+
+	return rs, query.Error
+
+}
+
+// applyFilter 用于应用查询条件
+func applyFilter(query *gorm.DB, key string, value interface{}) error {
+	switch {
+	case strings.HasPrefix(key, "q_"):
+		fieldStr := key[2:]
+		return query.Where(fieldStr+" LIKE ?", "%"+value.(string)+"%").Error
+	case key == "id":
+		return query.Where(key+" IN ?", value).Error
+	default:
+		return query.Where(key+" = ?", value).Error
+	}
 }
 
 // 获取数据根据ID

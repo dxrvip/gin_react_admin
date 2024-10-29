@@ -32,15 +32,19 @@ type BindRequestOtpons struct {
 	BindUri bool
 }
 
+func (b *BaseApi) SetCtx(Ctx *gin.Context) {
+	b.Ctx = Ctx
+}
+
 func (b *BaseApi) BindResquest(option BindRequestOtpons) *BaseApi {
 	var errResult error
 	b.Ctx = option.Ctx
-
+	b.Errors = nil
 	if option.Ser != nil {
 		if option.BindUri {
 			errResult = utils.AppendError(errResult, b.Ctx.ShouldBindUri(option.Ser))
 		} else {
-			errResult = utils.AppendError(errResult, b.Ctx.ShouldBind(option.Ser))
+			errResult = utils.AppendError(errResult, b.Ctx.ShouldBindJSON(option.Ser))
 		}
 		if errResult != nil {
 			b.AddError(errResult)
@@ -126,13 +130,16 @@ func (b *BaseApi) GetError() error {
 }
 
 func (b *BaseApi) Fail(resp utils.Response) {
+	resp.Code = errmsg.ERROR
 	utils.Fails(b.Ctx, resp)
 }
 
 func (b *BaseApi) Ok(resp utils.Response, rs string) {
+	resp.Code = errmsg.SUCCESS
 	utils.Success(b.Ctx, resp, rs)
 }
 
 func (m *BaseApi) ServerFail(resp utils.Response) {
+
 	utils.ServerFail(m.Ctx, resp)
 }

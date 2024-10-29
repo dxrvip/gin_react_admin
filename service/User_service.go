@@ -1,15 +1,39 @@
 package service
 
 import (
+	"errors"
 	"goVueBlog/models"
-
-	"gorm.io/gorm"
+	"goVueBlog/utils"
 )
 
 var userService *UserService
 
 type UserService struct {
 	BaseService
+}
+
+type LoginRequest struct {
+	Username string `json:"username" binding:"required,len=6"`
+	Password string `json:"password" binding:"required,min=6,max=20"`
+}
+
+type RegisterData struct {
+	LoginRequest
+	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
+	Role       uint   `json:"role" binding:"required,gte=1" label:"角色码"`
+	NikeName   string `json:"nikeName" binding:"min=2,max=50" label:"昵称"`
+	Email      string `json:"email" binding:"usage=email" label:"邮箱"`
+	Active     bool   `json:"active" binding:"required,default=true" label:"状态"`
+	Gender     string `json:"gender" binding:"required,defalut:other" label:"性别"`
+}
+type ResponseUser struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username" validate:"required,min=4,max=12" label:"用户名"`
+	Role     int    `json:"role" validate:"required,gte=2" label:"角色码"`
+	NikeName string `json:"nike_name" validate:"min=2,max=50" label:"昵称"`
+	Email    string `json:"email" validate:"usage=email" label:"邮箱"`
+	Active   bool   `json:"active" validate:"required" label:"状态"`
+	Gender   string `json:"gender" label:"性别"`
 }
 
 func NewUserService() *UserService {
@@ -21,17 +45,34 @@ func NewUserService() *UserService {
 	return userService
 }
 
+func (m *UserService) CreateUser(p *RegisterData) (any, error) {
+	// 验证用户名是否存在
+	user, err := m.GetUserByUsername(p.Username)
+	if user.Username != "" {
+		return nil, errors.New("用户名已存在")
+	}
+	if err != nil {
+		return nil, err
+	}
+	// 存入数据库
+	if err := m.DB.Model(m.Model).Create(&p).Error; err != nil {
+		return nil, err
+	}
+
+	// 生成token
+	token, err := utils.GenerateToken(p.Username, int(user.ID))
+	if err != nil {
+		return nil, errors.New("生成token失败")
+	}
+
+	return token, nil
+}
+
 // 判断用户名是否存在
 func (m *UserService) GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
 	result := m.DB.Where("username = ?", username).First(&user)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return &models.User{}, nil
-		}
-		return &models.User{}, result.Error
-	}
-	return &user, nil
+	return &user, result.Error
 }
 
 // 删除用户
@@ -42,8 +83,4 @@ func (m *UserService) DeleteUser(id uint) error {
 // 修改用户信息
 func (m *UserService) UpdateUser(id uint, username string) error {
 	return m.DB.Where("id = ?", id).Update("username", username).Error
-}
-
-func (m *UserService) CreateUser(user *models.User) error {
-	return m.DB.Create(user).Error
 }

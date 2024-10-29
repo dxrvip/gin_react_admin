@@ -38,7 +38,7 @@ export default (
     httpClient = fetchUtils.fetchJson,
     countHeader: string = 'Content-Range'
 ): DataProvider => ({
-    getList: (resource, params) => {
+    getList: (resource, params: any) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
 
@@ -73,10 +73,10 @@ export default (
                 total:
                     countHeader === 'Content-Range'
                         ? parseInt(
-                              headers.get('content-range').split('/').pop(),
+                              (headers.get('content-range') as any).split('/').pop(),
                               10
                           )
-                        : parseInt(headers.get(countHeader.toLowerCase())),
+                        : parseInt((headers.get((countHeader as any).toLowerCase()) as any)),
             };
         });
     },
@@ -136,10 +136,10 @@ export default (
                 total:
                     countHeader === 'Content-Range'
                         ? parseInt(
-                              headers.get('content-range').split('/').pop(),
+                              (headers.get('content-range') as any).split('/').pop(),
                               10
                           )
-                        : parseInt(headers.get(countHeader.toLowerCase())),
+                        : parseInt((headers.get(countHeader.toLowerCase()) as any)),
             };
         });
     },
