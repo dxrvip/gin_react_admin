@@ -42,16 +42,23 @@ export default function IndeterminateCheckbox(props: { data: PackageItem[], setM
   const { data, setMenuDatas } = props
   const record = useRecordContext()
   const [packageItem, setPackageItem] = useState<PackageItem[]>((): PackageItem[] => {
-    if (record == null && (record as any).menu == null) return data
+    if (record == null && (record as any).menus == null) return data
+    for (const element of data) {
+      element.func.forEach((item: FuncItem) => {
+        if (record?.menus.indexOf(item.name) > -1) {
+          item.active = true
+        }
+      })
+    }
     return data
   });
 
   useEffect(() => {
-    
+
     setMenuDatas(packageItem)
   }, [packageItem])
 
-
+  if (!record) return null;
   const handleChange1 = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const thisBool = event.target.checked
     const newPackageItem = packageItem.map((item: PackageItem, i: number) => {

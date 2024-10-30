@@ -11,7 +11,9 @@ import {
     Loading,
     useRecordContext,
     useUpdate,
+    useNotify,
 } from 'react-admin'
+import LoadingButton from '@mui/lab/LoadingButton';
 import { Button } from "@mui/material"
 import RouteIcon from '@mui/icons-material/Route';
 import DialogWindow from "../../components/Dialogwindow"
@@ -35,20 +37,28 @@ const DialogContent = (props: { setMenuDatas: (d: any) => void }) => {
 const DialogActions = (props: { menuDatas: PackageItem[], setOpen: (b: boolean) => void }) => {
     const record = useRecordContext()
     const [menus, setMenus] = useState<string[]>([])
+    const notify = useNotify()
     const { menuDatas, setOpen } = props
     const [update, { isPending, error }] = useUpdate(
         'role',
-        { id: record?.id, data: { menus: JSON.stringify(menus) }, previousData: record }
+        { id: record?.id, data: { menus: menus }, previousData: record },
+        {
+            onSuccess: (val => {
+                notify('权限编辑成功！', { type: "success" })
+            }),
+            onError: (val => {
+                notify(val?.message, { type: "error" })
+            })
+        }
+
     )
     useEffect(() => {
         if (menus.length > 0) {
-            console.log('准备提交数据:', menus);
             update()
         }
     }, [menus, update])
     if (!record) return null;
     // 提交更新
-
     const handleClick = () => {
 
         const newMenu = menuDatas.flatMap(element =>
@@ -56,13 +66,12 @@ const DialogActions = (props: { menuDatas: PackageItem[], setOpen: (b: boolean) 
         );
         setMenus(newMenu)
 
-        console.log(menuDatas, record, newMenu, menus)
     }
     return (
         <>
-            <Button onClick={handleClick}>保存权限</Button>
+            <LoadingButton loading={isPending} onClick={handleClick}>保存权限</LoadingButton>
             <Button autoFocus onClick={() => setOpen(false)}>
-                取消
+                关闭
             </Button>
         </>
     )
@@ -74,12 +83,12 @@ const ButtonGroupFiled = (props: any) => {
     return (
         <>
             <EditButton label='编辑' />
-            <DeleteButton label='删除' />
             <Button variant="text" endIcon={<RouteIcon />} onClick={() => {
                 setOpen(true)
             }}>
                 权限编辑
             </Button>
+            <DeleteButton label='删除' />
             <DialogWindow onClose={setOpen} open={open} dialogActions={<DialogActions setOpen={setOpen} menuDatas={menuDatas as PackageItem[]} />}>
                 <DialogContent setMenuDatas={setMenuDatas} />
             </DialogWindow>
