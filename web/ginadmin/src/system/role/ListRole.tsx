@@ -38,7 +38,7 @@ const DialogActions = (props: { menuDatas: PackageItem[], setOpen: (b: boolean) 
     const { menuDatas, setOpen } = props
     const [update, { isPending, error }] = useUpdate(
         'role',
-        { id: record?.id, data: { menus: menus }, previousData: record }
+        { id: record?.id, data: { menus: JSON.stringify(menus) }, previousData: record }
     )
     useEffect(() => {
         if (menus.length > 0) {

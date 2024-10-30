@@ -103,6 +103,7 @@ func (m *BaseService) UpdateDataByID(id uint, data interface{}) error {
 	rValue := reflect.ValueOf(data).Elem()
 	ids := rValue.FieldByName("ID")
 	ids.SetUint(uint64(id))
+	// result := m.DB.Model(&m.Model).Save(rValue.Interface())
 	result := m.DB.Model(&m.Model).Where("id = ?", id).Updates(rValue.Interface())
 	return result.Error
 }
