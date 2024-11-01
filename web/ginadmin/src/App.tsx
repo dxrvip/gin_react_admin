@@ -26,7 +26,6 @@ export const App = () => (
       i18nProvider={i18nProvider}
       dataProvider={dataProvider}
       authProvider={authProvider}
-      theme={theme}
     >
       <CustomRoutes>
         <Route path="/profile" element={<user.edit />} />
