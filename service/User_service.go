@@ -20,7 +20,6 @@ type LoginRequest struct {
 type RegisterData struct {
 	LoginRequest
 	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
-	Role       uint   `json:"role" binding:"required,gte=1" label:"角色码"`
 	NikeName   string `json:"nikeName" binding:"min=2,max=50" label:"昵称"`
 	Email      string `json:"email" binding:"email" label:"邮箱"`
 	Active     bool   `json:"active" binding:"required" label:"状态"`
@@ -29,7 +28,6 @@ type RegisterData struct {
 type ResponseUser struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username" validate:"required,min=4,max=12" label:"用户名"`
-	Role     int    `json:"role" validate:"required,gte=2" label:"角色码"`
 	NikeName string `json:"nike_name" validate:"min=2,max=50" label:"昵称"`
 	Email    string `json:"email" validate:"usage=email" label:"邮箱"`
 	Active   bool   `json:"active" validate:"required" label:"状态"`

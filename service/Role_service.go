@@ -20,6 +20,7 @@ type RoleResponse struct {
 	RoleParams
 	ID    uint              `json:"id" binding:"omitempty" label:"id"`
 	Menus models.JSONString `json:"menus,omitempty" binding:"omitempty" label:"权限菜单"`
+	User  []models.User     `json:"user,omitempty"`
 }
 
 type UpdateParams struct {

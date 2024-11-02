@@ -29,4 +29,5 @@ type Role struct {
 	Sort   uint       `gorm:"type:uint;default:0;comment:排序顺序" json:"sort,omitempty"`
 	Active bool       `gorm:"type:bool;default:true;comment:是否启用" json:"active,omitempty"`
 	Menus  JSONString `gorm:"type:text;comment:菜单" json:"menus,omitempty"`
+	User   []User     `gorm:"comment:关联用户"`
 }

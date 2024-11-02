@@ -12,9 +12,15 @@ import {
     useRecordContext,
     useUpdate,
     useNotify,
+    SimpleForm,
+    Edit,
+    SelectArrayInput,
+    SaveButton,
+    Toolbar,
+    useRedirect,
 } from 'react-admin'
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Button } from "@mui/material"
+import { Box, Button } from "@mui/material"
 import RouteIcon from '@mui/icons-material/Route';
 import DialogWindow from "../../components/Dialogwindow"
 import IndeterminateCheckbox from "../../components/IndeterminateCheckbox"
@@ -34,6 +40,8 @@ const DialogContent = (props: { setMenuDatas: (d: any) => void }) => {
 
 
 }
+
+
 const DialogActions = (props: { menuDatas: PackageItem[], setOpen: (b: boolean) => void }) => {
     const record = useRecordContext()
     const [menus, setMenus] = useState<string[]>([])
@@ -76,21 +84,64 @@ const DialogActions = (props: { menuDatas: PackageItem[], setOpen: (b: boolean) 
         </>
     )
 }
+const PostSaveButton = () => {
+    const notify = useNotify();
+    const redirect = useRedirect();
+    const onSuccess = (data: any) => {
+        notify(`Post "${data.title}" saved!`);
+        redirect('/posts');
+    };
+    return (
+        <SaveButton label="提交" type="button" mutationOptions={{ onSuccess }} />
+    );
+};
+export const MyToolbar = () => (
+    <Toolbar>
+        <PostSaveButton />
+    </Toolbar>
+);
+const DialogAddUserContent = (props: any) => {
+    const { data, isPending, error } = useGetList(
+        'user'
+    );
+    if (isPending) return <Loading />
+
+    if (error) return null
+    console.log(data)
+    return (
+        <Box sx={{width: 300 }}>
+
+            <Edit id={2} redirect="list">
+                <SimpleForm sx={{p:2, m: 3}} toolbar={<MyToolbar />}>
+                    <SelectArrayInput source="userId" choices={data} optionText="username" />
+
+                </SimpleForm>
+            </Edit>
+        </Box>
+
+
+    )
+}
+
 const ButtonGroupFiled = (props: any) => {
     const [open, setOpen] = useState<boolean>(false)
+    const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
     const [menuDatas, setMenuDatas] = useState<PackageItem[]>()
 
     return (
         <>
             <EditButton label='编辑' />
-            <Button variant="text" endIcon={<RouteIcon />} onClick={() => {
-                setOpen(true)
-            }}>
+            <Button variant="text" endIcon={<RouteIcon />} onClick={() => setOpen(true)}>
                 权限编辑
             </Button>
+            <Button variant="text" onClick={() => setAddUserOpen(true)}>添加用户</Button>
             <DeleteButton label='删除' />
             <DialogWindow onClose={setOpen} open={open} dialogActions={<DialogActions setOpen={setOpen} menuDatas={menuDatas as PackageItem[]} />}>
                 <DialogContent setMenuDatas={setMenuDatas} />
+            </DialogWindow>
+            {/* 添加用户窗口 */}
+            <DialogWindow open={addUserOpen} onClose={setAddUserOpen}>
+                <DialogAddUserContent />
             </DialogWindow>
         </>
     )

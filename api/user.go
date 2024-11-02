@@ -49,7 +49,6 @@ func (m *UserApi) Register(c *gin.Context) {
 		Username: params.Username,
 		Password: params.Password,
 		Email:    params.Email,
-		Role:     int(params.Role),
 		NikeName: params.NikeName,
 		Gender:   params.Gender,
 		Active:   params.Active,
