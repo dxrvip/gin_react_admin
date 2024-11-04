@@ -18,7 +18,9 @@ import {
     SaveButton,
     Toolbar,
     useRedirect,
+
 } from 'react-admin'
+import { useFormContext } from 'react-hook-form';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Button } from "@mui/material"
 import RouteIcon from '@mui/icons-material/Route';
@@ -84,22 +86,28 @@ const DialogActions = (props: { menuDatas: PackageItem[], setOpen: (b: boolean) 
         </>
     )
 }
-const PostSaveButton = () => {
-    const notify = useNotify();
+
+export const MyToolbar = () => {
+    const [update] = useUpdate();
+    const { getValues } = useFormContext();
     const redirect = useRedirect();
-    const onSuccess = (data: any) => {
-        notify(`Post "${data.title}" saved!`);
-        redirect('/posts');
-    };
+    const record = useRecordContext()
+    if (!record) return null;
+    const handleClick = (e: any) => {
+        e.preventDefault();
+        const { id, ...data } = getValues()
+        console.log(record, id, data)
+        update("role", { id: record?.id, data }, { onSuccess: () => redirect("list") })
+    }
+
     return (
-        <SaveButton label="提交" type="button" mutationOptions={{ onSuccess }} />
-    );
+        <Toolbar>
+            <SaveButton type="button" onClick={handleClick} />
+        </Toolbar>
+    )
 };
-export const MyToolbar = () => (
-    <Toolbar>
-        <PostSaveButton />
-    </Toolbar>
-);
+
+
 const DialogAddUserContent = (props: any) => {
     const { data, isPending, error } = useGetList(
         'user'
@@ -109,11 +117,11 @@ const DialogAddUserContent = (props: any) => {
     if (error) return null
     console.log(data)
     return (
-        <Box sx={{width: 300 }}>
+        <Box sx={{ width: 300 }}>
 
             <Edit id={2} redirect="list">
-                <SimpleForm sx={{p:2, m: 3}} toolbar={<MyToolbar />}>
-                    <SelectArrayInput source="userId" choices={data} optionText="username" />
+                <SimpleForm toolbar={<MyToolbar />}>
+                    <SelectArrayInput source="userId" choices={data} optionValue="id" optionText="username" />
 
                 </SimpleForm>
             </Edit>
@@ -165,3 +173,4 @@ function ListRole() {
 }
 
 export default ListRole;
+

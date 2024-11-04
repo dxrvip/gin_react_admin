@@ -89,7 +89,7 @@ func (m *RoleApi) UpdateRole(c *gin.Context) {
 	}
 	// 更新数据
 
-	if err := m.Service.UpdateDataByID(id.ID, &params); err != nil {
+	if err := m.Service.RoleUpdate(id.ID, &params); err != nil {
 		m.Fail(utils.Response{Msg: err.Error()})
 		return
 	}
