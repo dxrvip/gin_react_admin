@@ -22,7 +22,7 @@ type RoleResponse struct {
 	RoleParams
 	ID    uint              `json:"id" binding:"omitempty" label:"id"`
 	Menus models.JSONString `json:"menus,omitempty" binding:"omitempty" label:"权限菜单"`
-	User  []models.User     `json:"user,omitempty"`
+	User  []models.User     `json:"users,omitempty"`
 }
 
 type UpdateParams struct {
@@ -32,7 +32,7 @@ type UpdateParams struct {
 	Sort   uint              `json:"sort,omitempty" label:"排序顺序"`
 	Active bool              `json:"active,omitempty" label:"是否启用"`
 	Menus  models.JSONString `gorm:"type:string" json:"menus,omitempty" binding:"omitempty" label:"权限菜单"`
-	User   []models.User     `json:"userId"`
+	User   []uint            `json:"userId"`
 }
 
 func NewRoleService() *RoleService {
@@ -44,24 +44,24 @@ func NewRoleService() *RoleService {
 	return roleService
 }
 
-func (m *RoleService) RoleUpdate(id uint, data interface{}) error {
+func (m *RoleService) GetUsersById(id uint, data interface{}) ([]models.User, error) {
 	volue := reflect.ValueOf(data).Elem()
 	userSlip := volue.FieldByName("User")
+
+	var mapUser []models.User
 	if userSlip.IsValid() && userSlip.Kind() == reflect.Slice {
 		// 循环拿出user对象
-		var mapUser []models.User
 		for i := 0; i < userSlip.Len(); i++ {
 			userId := userSlip.Index(i).Uint()
 			// 重数据库中拿出用户信息
 			var thisUser models.User
 			if err := m.DB.Where("id = ?", userId).Find(&thisUser).Error; err != nil {
-				return fmt.Errorf("获取id为：%d 失败！", userId)
+				return mapUser, fmt.Errorf("获取id为：%d 失败！", userId)
 			}
 			mapUser = append(mapUser, thisUser)
 		}
-		userSlip.Set(reflect.ValueOf(mapUser))
 	}
-	fmt.Println(userSlip.Interface())
+
 	// 循环取出userId，重数据库中取出，赋值给user，
-	return m.UpdateDataByID(id, data)
+	return mapUser, nil
 }

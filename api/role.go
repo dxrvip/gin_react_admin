@@ -1,6 +1,7 @@
 package api
 
 import (
+	"goVueBlog/models"
 	"goVueBlog/service"
 	"goVueBlog/service/serializer"
 	"goVueBlog/utils"
@@ -87,12 +88,29 @@ func (m *RoleApi) UpdateRole(c *gin.Context) {
 		m.Fail(utils.Response{Msg: err.Error()})
 		return
 	}
-	// 更新数据
-
-	if err := m.Service.RoleUpdate(id.ID, &params); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
-		return
+	// 判断是否有用户数据 更新用户数据
+	if params.User != nil && len(params.User) > 0 {
+		var data models.Role
+		users, err := m.Service.GetUsersById(id.ID, &params)
+		if err != nil || len(users) <= 0 {
+			m.Fail(utils.Response{Msg: err.Error()})
+			return
+		}
+		// 添加user信息
+		data.User = users
+		data.ID = id.ID
+		if err := m.Service.UpdateDataByID(id.ID, &data); err != nil {
+			m.Fail(utils.Response{Msg: "数据更新失败！"})
+			return
+		}
+		m.Ok(utils.Response{Data: data}, "")
+	} else {
+		if err := m.Service.UpdateDataByID(id.ID, &params); err != nil {
+			m.Fail(utils.Response{Msg: "数据更新失败！"})
+			return
+		}
 	}
+
 	m.Ok(utils.Response{Data: params}, "")
 }
 
