@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"goVueBlog/models"
 	"reflect"
+
+	"gorm.io/gorm"
 )
 
 var roleService *RoleService
@@ -64,4 +66,21 @@ func (m *RoleService) GetUsersById(id uint, data interface{}) ([]models.User, er
 
 	// 循环取出userId，重数据库中取出，赋值给user，
 	return mapUser, nil
+}
+
+// 关联插入
+func (m *RoleService) UpdateUserAndRoleDataByID(datas *models.Role) error {
+	result := m.DB.Session(&gorm.Session{FullSaveAssociations: true}).Updates(datas)
+	return result.Error
+
+}
+
+// 获取数据根据ID
+func (m *RoleService) GetDataByID(id uint, datas *models.Role) error {
+	// 先查询role
+	m.DB.Model(&m.Model).First(datas, id)
+	var user []models.User
+	err := m.DB.Model(&datas).Association("User").Find(&user)
+	datas.User = user
+	return err
 }

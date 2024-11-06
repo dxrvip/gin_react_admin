@@ -51,7 +51,7 @@ func (m *RoleApi) GetRoleById(c *gin.Context) {
 		return
 	}
 
-	var datas service.RoleResponse
+	var datas models.Role
 	if err := m.Service.GetDataByID(uint(id.ID), &datas); err != nil {
 		m.Fail(utils.Response{Msg: err.Error()})
 		return
@@ -89,7 +89,7 @@ func (m *RoleApi) UpdateRole(c *gin.Context) {
 		return
 	}
 	// 判断是否有用户数据 更新用户数据
-	if params.User != nil && len(params.User) > 0 {
+	if len(params.User) > 0 {
 		var data models.Role
 		users, err := m.Service.GetUsersById(id.ID, &params)
 		if err != nil || len(users) <= 0 {
@@ -99,11 +99,12 @@ func (m *RoleApi) UpdateRole(c *gin.Context) {
 		// 添加user信息
 		data.User = users
 		data.ID = id.ID
-		if err := m.Service.UpdateDataByID(id.ID, &data); err != nil {
+		if err := m.Service.UpdateUserAndRoleDataByID(&data); err != nil {
 			m.Fail(utils.Response{Msg: "数据更新失败！"})
 			return
 		}
 		m.Ok(utils.Response{Data: data}, "")
+		return
 	} else {
 		if err := m.Service.UpdateDataByID(id.ID, &params); err != nil {
 			m.Fail(utils.Response{Msg: "数据更新失败！"})
