@@ -93,16 +93,22 @@ export const MyToolbar = (props: any) => {
   const [update] = useUpdate();
   const { getValues } = useFormContext();
   const redirect = useRedirect();
-  const { record } = props;
+  const { record, setAddUserOpen } = props;
 
   const handleClick = (e: any) => {
     e.preventDefault();
     const { id, ...data } = getValues();
-    console.log(record, id, data);
     update(
       "role",
       { id: record?.id, data },
-      { onSuccess: () => redirect("list") }
+      {
+        onSuccess: (value) => {
+          console.log(record, id, data, setAddUserOpen);
+
+          setAddUserOpen(false);
+          redirect("list");
+        },
+      }
     );
   };
 
@@ -116,15 +122,20 @@ export const MyToolbar = (props: any) => {
 const DialogAddUserContent = (props: any) => {
   const { data, isPending, error } = useGetList("user");
   const record = useRecordContext();
+  const { setAddUserOpen } = props;
   if (isPending) return <Loading />;
 
   if (error || !record) return null;
   return (
     <Box sx={{ width: 300 }}>
       <Edit id={(record as any)?.id} redirect="list">
-        <SimpleForm toolbar={<MyToolbar record={record} />}>
+        <SimpleForm
+          toolbar={
+            <MyToolbar record={record} setAddUserOpen={setAddUserOpen} />
+          }
+        >
           <SelectArrayInput
-            source="users"
+            source="user"
             choices={data}
             optionValue="id"
             optionText="username"
@@ -139,7 +150,6 @@ const ButtonGroupFiled = (props: any) => {
   const [open, setOpen] = useState<boolean>(false);
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false);
   const [menuDatas, setMenuDatas] = useState<PackageItem[]>();
-
   return (
     <>
       <EditButton label="编辑" />
@@ -168,7 +178,7 @@ const ButtonGroupFiled = (props: any) => {
       </DialogWindow>
       {/* 添加用户窗口 */}
       <DialogWindow open={addUserOpen} onClose={setAddUserOpen}>
-        <DialogAddUserContent />
+        <DialogAddUserContent setAddUserOpen={setAddUserOpen} />
       </DialogWindow>
     </>
   );

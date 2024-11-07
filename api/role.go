@@ -89,30 +89,44 @@ func (m *RoleApi) UpdateRole(c *gin.Context) {
 		return
 	}
 	// 判断是否有用户数据 更新用户数据
+	var data models.Role
+	// 组织更新内容
+	data.ID = params.ID
+	data.Active = params.Active
+	data.Key = params.Key
+	data.Name = params.Name
+	data.Menus = params.Menus
+	data.Sort = params.Sort
+	// 先更新数据
+
+	if err := m.Service.UpdateDataByID(id.ID, &data); err != nil {
+		m.Fail(utils.Response{Msg: "数据更新失败！"})
+		return
+	}
+
+	// 再更新关联
 	if len(params.User) > 0 {
-		var data models.Role
+		//首先清理关联
+		if err := m.Service.RemoveAllAnys(&data); err != nil {
+			m.Fail(utils.Response{Msg: err.Error()})
+			return
+		}
 		users, err := m.Service.GetUsersById(id.ID, &params)
 		if err != nil || len(users) <= 0 {
 			m.Fail(utils.Response{Msg: err.Error()})
 			return
 		}
+
 		// 添加user信息
 		data.Users = users
-		data.ID = id.ID
+
 		if err := m.Service.UpdateUserAndRoleDataByID(&data); err != nil {
-			m.Fail(utils.Response{Msg: "数据更新失败！"})
-			return
-		}
-		m.Ok(utils.Response{Data: data}, "")
-		return
-	} else {
-		if err := m.Service.UpdateDataByID(id.ID, &params); err != nil {
 			m.Fail(utils.Response{Msg: "数据更新失败！"})
 			return
 		}
 	}
 
-	m.Ok(utils.Response{Data: params}, "")
+	m.Ok(utils.Response{Data: data}, "")
 }
 
 func (m *RoleApi) DelRole(c *gin.Context) {

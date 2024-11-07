@@ -34,7 +34,7 @@ type UpdateParams struct {
 	Sort   uint              `json:"sort,omitempty" label:"排序顺序"`
 	Active bool              `json:"active,omitempty" label:"是否启用"`
 	Menus  models.JSONString `gorm:"type:string" json:"menus,omitempty" binding:"omitempty" label:"权限菜单"`
-	User   []uint            `json:"user"`
+	User   []uint            `json:"user,omitempty"`
 }
 
 func NewRoleService() *RoleService {
@@ -68,24 +68,43 @@ func (m *RoleService) GetUsersById(id uint, data interface{}) ([]models.User, er
 	return mapUser, nil
 }
 
-// 关联插入
-func (m *RoleService) UpdateUserAndRoleDataByID(datas *models.Role) error {
-	result := m.DB.Session(&gorm.Session{FullSaveAssociations: true}).Updates(datas)
-	return result.Error
+// 清空关联
+func (m *RoleService) RemoveAllAnys(role *models.Role) error {
+	return m.DB.Model(&role).Association("Users").Clear()
 
 }
 
+// 关联插入
+func (m *RoleService) UpdateUserAndRoleDataByID(datas *models.Role) error {
+	// result := m.DB.Session(&gorm.Session{FullSaveAssociations: true}).Updates(datas)
+	// return result.Error
+	if err := m.DB.Model(&datas).Association("Users").Replace(datas.Users); err != nil {
+		return fmt.Errorf("添加用户失败: %w", err)
+	}
+	return nil
+}
+
 // 获取数据根据ID
-func (m *RoleService) GetDataByID(id uint) (models.Role, error) {
+func (m *RoleService) GetDataByID(id uint) (RoleResponse, error) {
 	// 先查询 role
 	var role models.Role
+	var response RoleResponse
 
 	// 查询角色及其关联的用户字段
 	if err := m.DB.Model(&m.Model).Preload("Users", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id, username") // 选择 Users 中的 id 和 username
 	}).First(&role, id).Error; err != nil {
-		return role, fmt.Errorf("获取角色失败: %w", err)
+		return response, fmt.Errorf("获取角色失败: %w", err)
 	}
-
-	return role, nil
+	// 组织返回参数
+	response.ID = role.ID
+	response.Active = role.Active
+	response.Key = role.Key
+	response.Name = role.Name
+	response.Menus = role.Menus
+	response.Sort = role.Sort
+	for _, user := range role.Users {
+		response.User = append(response.User, user.ID)
+	}
+	return response, nil
 }

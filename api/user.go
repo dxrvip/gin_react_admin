@@ -89,7 +89,7 @@ func (m *UserApi) Login(c *gin.Context) {
 	}
 	// 验证密码是否正确
 	if !utils.CheckPassword(params.Password, user.Password) {
-		m.Fail(utils.Response{})
+		m.Fail(utils.Response{Msg: "密码错误！"})
 		return
 	}
 
