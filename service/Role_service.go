@@ -24,7 +24,7 @@ type RoleResponse struct {
 	RoleParams
 	ID    uint              `json:"id" binding:"omitempty" label:"id"`
 	Menus models.JSONString `json:"menus,omitempty" binding:"omitempty" label:"权限菜单"`
-	User  []models.User     `json:"users,omitempty"`
+	User  []uint            `json:"user,omitempty"`
 }
 
 type UpdateParams struct {
@@ -34,7 +34,7 @@ type UpdateParams struct {
 	Sort   uint              `json:"sort,omitempty" label:"排序顺序"`
 	Active bool              `json:"active,omitempty" label:"是否启用"`
 	Menus  models.JSONString `gorm:"type:string" json:"menus,omitempty" binding:"omitempty" label:"权限菜单"`
-	User   []uint            `json:"userId"`
+	User   []uint            `json:"user"`
 }
 
 func NewRoleService() *RoleService {
@@ -76,11 +76,16 @@ func (m *RoleService) UpdateUserAndRoleDataByID(datas *models.Role) error {
 }
 
 // 获取数据根据ID
-func (m *RoleService) GetDataByID(id uint, datas *models.Role) error {
-	// 先查询role
-	m.DB.Model(&m.Model).First(datas, id)
-	var user []models.User
-	err := m.DB.Model(&datas).Association("User").Find(&user)
-	datas.User = user
-	return err
+func (m *RoleService) GetDataByID(id uint) (models.Role, error) {
+	// 先查询 role
+	var role models.Role
+
+	// 查询角色及其关联的用户字段
+	if err := m.DB.Model(&m.Model).Preload("Users", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id, username") // 选择 Users 中的 id 和 username
+	}).First(&role, id).Error; err != nil {
+		return role, fmt.Errorf("获取角色失败: %w", err)
+	}
+
+	return role, nil
 }

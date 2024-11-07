@@ -118,14 +118,13 @@ const DialogAddUserContent = (props: any) => {
   const record = useRecordContext();
   if (isPending) return <Loading />;
 
-  console.log(data, record);
   if (error || !record) return null;
   return (
     <Box sx={{ width: 300 }}>
       <Edit id={(record as any)?.id} redirect="list">
         <SimpleForm toolbar={<MyToolbar record={record} />}>
           <SelectArrayInput
-            source="userId"
+            source="users"
             choices={data}
             optionValue="id"
             optionText="username"

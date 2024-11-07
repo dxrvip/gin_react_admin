@@ -6,7 +6,6 @@ import {
     BooleanField,
     EditButton,
     DeleteButton,
-    useRecordContext,
 } from "react-admin"
 
 const GroupBut = (props: any) => {
