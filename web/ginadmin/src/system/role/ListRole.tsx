@@ -92,7 +92,6 @@ const DialogActions = (props: {
 export const MyToolbar = (props: any) => {
   const [update] = useUpdate();
   const { getValues } = useFormContext();
-  const redirect = useRedirect();
   const { record, setAddUserOpen } = props;
 
   const handleClick = (e: any) => {
@@ -103,10 +102,7 @@ export const MyToolbar = (props: any) => {
       { id: record?.id, data },
       {
         onSuccess: (value) => {
-          console.log(record, id, data, setAddUserOpen);
-
           setAddUserOpen(false);
-          redirect("list");
         },
       }
     );

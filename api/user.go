@@ -87,7 +87,8 @@ func (m *UserApi) Login(c *gin.Context) {
 		m.Fail(utils.Response{Msg: "用户不存在！"})
 		return
 	}
-	// 验证密码是否正确
+	// 谁他妈的总是改密码
+	// 验证密码是否正确///$2a$10$vMa2gs0V85bjxxLEMfdjBOjqNRS4xkRN5Kf1rkwPGcfHvCoN8HCOe
 	if !utils.CheckPassword(params.Password, user.Password) {
 		m.Fail(utils.Response{Msg: "密码错误！"})
 		return
