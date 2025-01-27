@@ -22,8 +22,8 @@ type RegisterData struct {
 	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
 	NikeName   string `json:"nikeName" binding:"min=2,max=50" label:"昵称"`
 	Email      string `json:"email" binding:"email" label:"邮箱"`
-	Active     bool   `json:"active" binding:"required" label:"状态"`
-	Gender     string `json:"gender" binding:"required" label:"性别"`
+	Active     bool   `json:"active,omitempty" label:"状态"`
+	Gender     string `json:"gender,omitempty" label:"性别"`
 }
 type ResponseUser struct {
 	ID       uint   `json:"id"`
@@ -37,7 +37,7 @@ type ResponseUser struct {
 func NewUserService() *UserService {
 	if userService == nil {
 		return &UserService{
-			BaseService: NewBaseApi(models.User{}),
+			BaseService: NewBaseApi(&models.User{}),
 		}
 	}
 	return userService

@@ -1,3 +1,4 @@
+/* 权限管理 */
 package api
 
 import (
@@ -27,6 +28,14 @@ func NewRoleApi() *RoleApi {
 	return roleApi
 }
 
+// AddCategory
+// @Summary 添加权限
+// @Tags 权限管理
+// @Accept json
+// @Param Authorization header string true "Bearer token"
+// @Param data body CategoryRequest true "权限名称"
+// @Success 200 {string} json "{"code":200,"data":{},"msg":"ok"}"
+// @Router /role [post]
 func (m *RoleApi) CreateRole(c *gin.Context) {
 	var params service.RoleParams
 	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {

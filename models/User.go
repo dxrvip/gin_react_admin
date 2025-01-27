@@ -28,3 +28,16 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 func (u *User) GetPassword() string {
 	return "****"
 }
+
+// 获取数据对性别修改
+func (u *User) AfterFind(tx *gorm.DB) (err error) {
+	switch u.Gender {
+	case "male":
+		u.Gender = "男"
+	case "female":
+		u.Gender = "女"
+	default:
+		u.Gender = "未知"
+	}
+	return
+}

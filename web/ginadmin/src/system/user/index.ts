@@ -1,10 +1,10 @@
-import { ProfileEdit } from "./ProfileEdit";
+import { UserEdit } from "./UserEdit";
 import { UserList } from './UserList'
 import UserCreate from './UserCreate'
 import ManageAccountsTwoToneIcon from '@mui/icons-material/ManageAccountsTwoTone';
 
 export default {
-    edit: ProfileEdit,
+    edit: UserEdit,
     icon: ManageAccountsTwoToneIcon,
     list: UserList,
     create: UserCreate,

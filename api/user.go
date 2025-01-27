@@ -1,3 +1,4 @@
+/* 用户管理 */
 package api
 
 import (
@@ -59,10 +60,9 @@ func (m *UserApi) Register(c *gin.Context) {
 		m.Fail(utils.Response{Code: errmsg.ERROR_USERNAME_USED, Msg: err.Error()})
 		return
 	}
-
 	m.Ok(utils.Response{
 		Code: errmsg.SUCCESS,
-		Data: token,
+		Data: map[string]any{"token": token, "id": registerData.ID, "username": registerData.Username},
 	}, "")
 }
 
@@ -120,7 +120,7 @@ func (m *UserApi) List(c *gin.Context) {
 		return
 	}
 
-	var datas []service.ResponseUser
+	var datas []models.User
 	re, err := m.Service.List(&datas, &quers)
 	if err != nil {
 		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})

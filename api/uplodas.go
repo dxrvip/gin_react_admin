@@ -1,3 +1,4 @@
+/* 图片管理 */
 package api
 
 import (
