@@ -2,7 +2,6 @@
 package api
 
 import (
-	"goVueBlog/models"
 	"goVueBlog/service"
 	"goVueBlog/service/serializer"
 	"goVueBlog/utils"
@@ -97,45 +96,80 @@ func (m *RoleApi) UpdateRole(c *gin.Context) {
 		m.Fail(utils.Response{Msg: err.Error()})
 		return
 	}
-	// 判断是否有用户数据 更新用户数据
-	var data models.Role
 	// 组织更新内容
-	data.ID = params.ID
-	data.Active = params.Active
-	data.Key = params.Key
-	data.Name = params.Name
-	data.Menus = params.Menus
-	data.Sort = params.Sort
+	activeUint := 0
+	if params.Active {
+		activeUint = 1
+	}
+	// 判断是否有用户数据 更新用户数据
+	updateData := make(map[string]interface{})
+
+	updateData["active"] = activeUint
+	updateData["key"] = params.Key
+	updateData["name"] = params.Name
+	updateData["menus"] = params.Menus
+	updateData["sort"] = params.Sort
 	// 先更新数据
 
-	if err := m.Service.UpdateDataByID(id.ID, &data); err != nil {
+	if err := m.Service.UpdateRoleDataByID(id.ID, &updateData); err != nil {
 		m.Fail(utils.Response{Msg: "数据更新失败！"})
 		return
 	}
 
-	// 再更新关联
-	if len(params.User) > 0 {
-		//首先清理关联
-		if err := m.Service.RemoveAllAnys(&data); err != nil {
-			m.Fail(utils.Response{Msg: err.Error()})
-			return
-		}
-		users, err := m.Service.GetUsersById(id.ID, &params)
-		if err != nil || len(users) <= 0 {
-			m.Fail(utils.Response{Msg: err.Error()})
-			return
-		}
+	updateData["id"] = id.ID
 
-		// 添加user信息
-		data.Users = users
+	m.Ok(utils.Response{Data: updateData}, "")
+}
 
-		if err := m.Service.UpdateUserAndRoleDataByID(&data); err != nil {
-			m.Fail(utils.Response{Msg: "数据更新失败！"})
-			return
-		}
+// 更新用户权限
+func (m *RoleApi) UpdateRoleUsers(c *gin.Context) {
+	// 获取更新数据
+	var id serializer.CommonIDDTO
+	// 获取id
+	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(utils.Response{Msg: err.Error()})
+		return
 	}
 
-	m.Ok(utils.Response{Data: data}, "")
+	var params struct {
+		User []uint `json:"user" binding:"required"`
+	}
+
+	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
+		m.Fail(utils.Response{Msg: err.Error()})
+		return
+	}
+
+	if err := m.Service.UpdateRoleUsers(id.ID, params.User); err != nil {
+		m.Fail(utils.Response{Msg: "数据更新失败！"})
+		return
+	}
+	m.Ok(utils.Response{Data: map[string]interface{}{"id": id.ID}}, "")
+
+}
+
+// 更新用户权限
+func (m *RoleApi) UpdateRoleMenus(c *gin.Context) {
+	// 获取更新数据
+	var id serializer.CommonIDDTO
+	// 获取id
+	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(utils.Response{Msg: err.Error()})
+		return
+	}
+
+	var params service.UpdateParams
+	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
+		m.Fail(utils.Response{Msg: err.Error()})
+		return
+	}
+
+	if err := m.Service.UpdateRoleMenus(id.ID, &params); err != nil {
+		m.Fail(utils.Response{Msg: "数据更新失败！"})
+		return
+	}
+	m.Ok(utils.Response{Data: map[string]interface{}{"id": id.ID}}, "")
+
 }
 
 func (m *RoleApi) DelRole(c *gin.Context) {

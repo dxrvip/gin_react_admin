@@ -18,11 +18,15 @@ import {
   SaveButton,
   maxLength,
   minLength,
+  BooleanInput,
+  email,
+  useUpdate,
+  Edit,
 } from "react-admin";
 import { choices } from "./UserCreate";
 const ProfileContext = createContext({
   profileVersion: 0,
-  refreshProfile: () => {},
+  refreshProfile: () => { },
 });
 
 export const ProfileProvider = ({ children }: { children: any }) => {
@@ -53,35 +57,23 @@ const CustomToolbar = (props: any) => (
 );
 
 export const UserEdit = ({ ...props }) => {
-  const notify = useNotify();
+  // const notify = useNotify();
   const redirect = useRedirect();
-  const [saving, setSaving] = useState(false);
-  const { refreshProfile, profileVersion } = useProfile();
+  const [saving, _] = useState(false);
   const { isLoading: isUserIdentityLoading, data } = useGetIdentity();
-  console.log("data", data, refreshProfile, profileVersion);
   if (!isUserIdentityLoading && !data?.username) {
     redirect("/login");
   }
 
-  const handleSave = useCallback(
-    (values: any) => {
-      console.log("values", values);
-    },
-    [notify, refreshProfile, redirect]
-  );
 
   if (isUserIdentityLoading) {
     return null;
   }
 
   return (
-    <SaveContextProvider
-      value={{ save: handleSave, saving }}
-      key={profileVersion}
-    >
+    <Edit>
       <SimpleForm
         sx={{ width: 699 }}
-        record={data ? data : {}}
         toolbar={<CustomToolbar />}
       >
         <TextInput source="id" label="用户ID" disabled />
@@ -91,14 +83,15 @@ export const UserEdit = ({ ...props }) => {
           validate={[required(), maxLength(10), minLength(6)]}
         />
         <TextInput source="nike_name" label="昵称" validate={required()} />
-        <TextInput source="email" label="邮箱" validate={required()} />
+        <TextInput source="email" label="邮箱" validate={[required(), email()]} />
         <SelectInput
           source="gender"
           choices={choices}
           label="性别"
-          defaultValue={"other"}
+          defaultValue={"未知"}
         />
+        <BooleanInput source="status" label="状态" />
       </SimpleForm>
-    </SaveContextProvider>
+    </Edit>
   );
 };

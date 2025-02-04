@@ -9,9 +9,9 @@ import {
   maxLength,
 } from "react-admin";
 export const choices = [
-  { id: "other", name: "其他" },
-  { id: "female", name: "女" },
-  { id: "male", name: "男" },
+  { id: "未知", name: "未知" },
+  { id: "女", name: "女" },
+  { id: "男", name: "男" },
 ];
 
 //验证密码是否正确

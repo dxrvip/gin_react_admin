@@ -46,6 +46,9 @@ func DbInit() (DB *gorm.DB) {
 		&models.Category{},
 		&models.Article{},
 		&models.Role{},
+		&models.Message{},
+		&models.Department{},
+		&models.UserMessage{},
 	)
 	return
 }

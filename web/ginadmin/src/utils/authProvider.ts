@@ -3,13 +3,11 @@ import { AuthProvider, HttpError } from "react-admin";
 
 interface LoginResponse {
   status: number;
-  msg: string;
+  message: string;
   data: { user_id: number, username: string, full_name: string };
   token: string;
 }
-/**
- * 此 authProvider 仅用于测试目的。不要在生产中使用它。
- */
+
 export const authProvider: AuthProvider = {
   login: ({ username, password }) => {
     const request = new Request(import.meta.env.VITE_SIMPLE_REST_URL + "/user/login", {
@@ -22,19 +20,21 @@ export const authProvider: AuthProvider = {
     return fetch(request)
       .then(async (response) => {
         // 访问成功
-        if (response.status === 200) {
+        console.log(response.status)
+        let result: LoginResponse = await response.json();
+        if (response.status === 200 && result?.status === 200) {
           // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-          let result: LoginResponse = await response.json();
-          if (result.status === 200) {
-            // 登陆成功//存储token
-            localStorage.setItem("user", JSON.stringify(result?.data));
-            localStorage.setItem("token", result?.token);
-            return Promise.resolve();
 
-          }
-          msg = result.msg;
+          // 登陆成功//存储token
+          localStorage.setItem("user", JSON.stringify(result?.data));
+          localStorage.setItem("token", result?.token);
+          return Promise.resolve();
+
+
+        } else {
+          msg = result?.message;
+          return Promise.reject();
         }
-        return Promise.reject();
       }).catch(() => {
         return Promise.reject(
           new HttpError(msg, 500, {

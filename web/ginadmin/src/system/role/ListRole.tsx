@@ -17,7 +17,7 @@ import {
   SelectArrayInput,
   SaveButton,
   Toolbar,
-  useRedirect,
+  useRefresh,
 } from "react-admin";
 import { useFormContext } from "react-hook-form";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -51,13 +51,17 @@ const DialogActions = (props: {
   const record = useRecordContext();
   const [menus, setMenus] = useState<string[]>([]);
   const notify = useNotify();
+  const refresh = useRefresh();
   const { menuDatas, setOpen } = props;
   const [update, { isPending, error }] = useUpdate(
-    "role",
+    "role/muens",
     { id: record?.id, data: { menus: menus }, previousData: record },
     {
       onSuccess: (val) => {
         notify("权限编辑成功！", { type: "success" });
+        // 关闭窗口进行刷新
+        setOpen(false);
+        refresh();
       },
       onError: (val) => {
         notify(val?.message, { type: "error" });
@@ -98,7 +102,7 @@ export const MyToolbar = (props: any) => {
     e.preventDefault();
     const { id, ...data } = getValues();
     update(
-      "role",
+      "role/users",
       { id: record?.id, data },
       {
         onSuccess: (value) => {
@@ -160,6 +164,7 @@ const ButtonGroupFiled = (props: any) => {
         添加用户
       </Button>
       <DeleteButton label="删除" />
+      {/* 添加权限窗口 */}
       <DialogWindow
         onClose={setOpen}
         open={open}

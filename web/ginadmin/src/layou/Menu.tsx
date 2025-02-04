@@ -14,15 +14,25 @@ import post from "../blog/article"
 import department from "../system/department";
 import user from "../system/user"
 import role from "../system/role"
-import news from "../system/news"
 import categories from "../blog/categories"
-type MenuName = 'blog' | 'system';
+import message from "../system/messages"
+import order from "../shop/order";
+import shop from "../shop"
+import product from "../shop/products";
+import attribute from "../shop/attribute";
+import category from "../shop/category";
+import brand from "../shop/brand";
+
+type MenuName = 'blog' | 'system' | 'shop' | 'product';
 
 
 const Menu = ({ dense = false }: MenuProps) => {
     const [state, setState] = useState({
         blog: false,
         system: true,
+        shop: false,
+        product: false,
+
     });
 
     const [open] = useSidebarState();
@@ -73,10 +83,10 @@ const Menu = ({ dense = false }: MenuProps) => {
                     dense={dense}
                 />
                 <MenuItemLink
-                    to="/news"
+                    to="/message"
                     state={{ _scrollToTop: true }}
                     primaryText="消息中心"
-                    leftIcon={<news.icon />}
+                    leftIcon={<message.icon />}
                     dense={dense}
                 />
             </SubMenu>
@@ -102,7 +112,50 @@ const Menu = ({ dense = false }: MenuProps) => {
                     dense={dense}
                 />
             </SubMenu>
-           
+            <SubMenu
+                handleToggle={() => handleToggle('shop')}
+                isOpen={state.shop}
+                name="商城管理"
+                icon={<shop.shopIcon />}
+                dense={dense}
+            >
+                <MenuItemLink
+                    to="/brand"
+                    state={{ _scrollToTop: true }}
+                    primaryText="品牌管理"
+                    leftIcon={<brand.icon />}
+                    dense={dense}
+                />
+                <MenuItemLink
+                    to="/article"
+                    state={{ _scrollToTop: true }}
+                    primaryText="商品分类"
+                    leftIcon={<category.icon />}
+                    dense={dense}
+                />
+                <MenuItemLink
+                    to="/category"
+                    state={{ _scrollToTop: true }}
+                    primaryText="商品属性"
+                    leftIcon={<attribute.icon />}
+                    dense={dense}
+                />
+                <MenuItemLink
+                    to="/category"
+                    state={{ _scrollToTop: true }}
+                    primaryText="商品列表"
+                    leftIcon={<product.icon />}
+                    dense={dense}
+                />
+                <MenuItemLink
+                    to="/article"
+                    state={{ _scrollToTop: true }}
+                    primaryText="订单列表"
+                    leftIcon={<order.icon />}
+                    dense={dense}
+                />
+            </SubMenu>
+
         </Box>
     )
 }

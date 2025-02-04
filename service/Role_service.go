@@ -74,13 +74,44 @@ func (m *RoleService) RemoveAllAnys(role *models.Role) error {
 
 }
 
-// 关联插入
-func (m *RoleService) UpdateUserAndRoleDataByID(datas *models.Role) error {
-	// result := m.DB.Session(&gorm.Session{FullSaveAssociations: true}).Updates(datas)
-	// return result.Error
-	if err := m.DB.Model(&datas).Association("Users").Replace(datas.Users); err != nil {
-		return fmt.Errorf("添加用户失败: %w", err)
+// 更新数据根据ID
+func (m *BaseService) UpdateRoleDataByID(id uint, data interface{}) error {
+
+	// result := m.DB.Model(&m.Model).Save(rValue.Interface())
+	result := m.DB.Model(&m.Model).Where("id = ?", id).Updates(data)
+	return result.Error
+}
+
+// 更新关联用户数据
+func (m *RoleService) UpdateRoleUsers(id uint, usersData []uint) error {
+	var role models.Role
+	if err := m.DB.First(&role, id).Error; err != nil {
+		return fmt.Errorf("查找角色失败: %w", err)
 	}
+
+	// 查询出user
+	var users []models.User
+	if err := m.DB.Where("id IN ?", usersData).Find(&users).Error; err != nil {
+		return fmt.Errorf("查询用户失败: %w", err)
+	}
+	// 更新关联
+	if err := m.DB.Model(&role).Association("Users").Replace(users); err != nil {
+		return fmt.Errorf("更新关联用户失败: %w", err)
+	}
+	return nil
+}
+
+// 关联插入
+func (m *RoleService) UpdateRoleMenus(id uint, updateData *UpdateParams) error {
+	// 确保 updateData 包含正确的类型信息
+
+	// 更新角色数据
+	if err := m.DB.Model(&models.Role{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"menus": updateData.Menus,
+	}).Error; err != nil {
+		return fmt.Errorf("更新角色数据失败: %w", err)
+	}
+
 	return nil
 }
 

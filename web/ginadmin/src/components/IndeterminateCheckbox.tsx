@@ -41,8 +41,10 @@ const Children = (props: childrenProps) => {
 export default function IndeterminateCheckbox(props: { data: PackageItem[], setMenuDatas: (d: any) => void }) {
   const { data, setMenuDatas } = props
   const record = useRecordContext()
-  const [packageItem, setPackageItem] = useState<PackageItem[]>((): PackageItem[] => {
-    if (record == null && (record as any).menus == null) return data
+
+  const [packageItem, setPackageItem] = useState<PackageItem[]>(()=> {
+    if (!record || !record.menus) return data;
+ 
     for (const element of data) {
       element.func.forEach((item: FuncItem) => {
         if (record?.menus.indexOf(item.name) > -1) {

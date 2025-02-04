@@ -46,6 +46,10 @@ func InitUrlsRouter() *gin.Engine {
 	RegisterSystemUrls(v1)
 	//=> 角色路由
 	RegisterRoleUrls(v1)
+	//=> 部门路由
+	RegisterDepartmentUrls(v1)
+	//=> 消息路由
+	RegisterMessageUrls(v1)
 	//=> 文件上传
 	v1.GET("/auto/upload", api.UploadImage)
 	return r

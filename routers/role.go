@@ -13,6 +13,8 @@ func RegisterRoleUrls(r *gin.RouterGroup) {
 		roleUrl.GET("", roleApi.ListRole)
 		roleUrl.GET("/:id", roleApi.GetRoleById)
 		roleUrl.PUT("/:id", roleApi.UpdateRole)
+		roleUrl.PUT("/users/:id", roleApi.UpdateRoleUsers)
+		roleUrl.PUT("/muens/:id", roleApi.UpdateRoleMenus)
 		roleUrl.DELETE("/:id", roleApi.DelRole)
 		roleUrl.POST("", roleApi.CreateRole)
 

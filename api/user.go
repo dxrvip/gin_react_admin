@@ -120,7 +120,7 @@ func (m *UserApi) List(c *gin.Context) {
 		return
 	}
 
-	var datas []models.User
+	var datas []service.ResponseUser
 	re, err := m.Service.List(&datas, &quers)
 	if err != nil {
 		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
@@ -134,22 +134,24 @@ func (m *UserApi) List(c *gin.Context) {
 // @Tags 用户
 // @Param Authorization header string true "Bearer token"
 // @Success 200
-// @Router /user/info [get]
+// @Router /user/{id} [get]
 func (m *UserApi) Info(g *gin.Context) {
-	username := g.MustGet("username")
-	// fmt.Println(claims)
-	if user, _ := m.Service.GetUserByUsername(username.(string)); user.Username != "" {
-		g.JSON(http.StatusBadRequest, gin.H{
-			"data":    user,
-			"message": "获取成功",
-		})
+	// 实现获取用户信息的逻辑
 
-	} else {
-		g.JSON(http.StatusOK, gin.H{
-			"data":    nil,
-			"message": "获取失败",
-		})
+	var id serializer.CommonIDDTO
+
+	if error := m.BindResquest(BindRequestOtpons{Ctx: g, Ser: &id, BindUri: true}).GetError(); error != nil {
+		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
+		return
+
 	}
+
+	var user service.ResponseUser
+	if error := m.Service.GetDataByID(id.ID, &user); error != nil {
+		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
+		return
+	}
+	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: user}, "")
 }
 
 // Delete
@@ -181,23 +183,29 @@ func (m *UserApi) Delete(c *gin.Context) {
 // @Router /user/{id} [put]
 func (m *UserApi) Update(c *gin.Context) {
 	// 实现修改用户信息的逻辑
-	id, _ := strconv.Atoi(c.Param("id"))
-	var json service.RegisterData
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	var id serializer.CommonIDDTO
+	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
-	if m.Service.UpdateUser(uint(id), json.Username) == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "修改成功",
-		})
-		return
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "修改失败",
-		})
+	// 获取修改数据
+	var updateData service.UpdateUser
+	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &updateData, BindUri: false}).GetError(); err != nil {
+		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
+	// 修改数据
+	if err := m.Service.UpdateUser(id.ID, updateData); err != nil {
+		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+		return
+	}
+	// 组织返回数据
+	var response service.ResponseUser
+	response.ID = id.ID
+	response.Username = updateData.Username
+	response.NikeName = updateData.NikeName
+	response.Email = updateData.Email
+	response.Active = updateData.Active
+
+	m.Ok(utils.Response{Code: errmsg.SUCCESS, Msg: "修改成功", Data: response}, "")
 }

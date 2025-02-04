@@ -3,7 +3,6 @@ import {
   Resource,
   CustomRoutes,
 } from "react-admin";
-import { ThemeProvider, CssBaseline } from '@mui/material';
 import { Route } from "react-router";
 import { Layout, Component } from "./layou";
 import dataProvider from "./utils/dataProvider";
@@ -14,9 +13,16 @@ import article from "./blog/article"
 import categories from "./blog/categories"
 import user from "./system/user";
 import department from "./system/department";
-import news from "./system/news";
+import message from "./system/messages";
+
+import category from "./shop/category"
+import brand from "./shop/brand";
+import products from "./shop/products";
+import order from "./shop/order";
+import attribute from "./shop/attribute";
+
+
 import role from "./system/role";
-import theme from "./utils/theme";
 
 export const App = () => (
 
@@ -39,8 +45,8 @@ export const App = () => (
         {...role}
       />
       <Resource
-        name="news"
-        {...news}
+        name="message"
+        {...message}
       />
       <Resource
         name="department"
@@ -54,6 +60,28 @@ export const App = () => (
       <Resource
         name="category"
         {...categories}
+      />
+
+
+      <Resource
+        name="shopcategory"
+        {...category}
+      />
+      <Resource
+        name="attribute"
+        {...attribute}
+      />
+      <Resource
+        name="brand"
+        {...brand}
+      />
+      <Resource
+        name="products"
+        {...products}
+      />
+      <Resource
+        name="order"
+        {...order}
       />
 
     </Admin>
