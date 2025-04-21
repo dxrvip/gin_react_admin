@@ -1,11 +1,11 @@
 
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
-import  ProductsEdi from './ProductsEdit';
-import ProductsCreate from './ProductsCreate';
-import ProductsList from './ProductsList';
+import  {ProductEdit} from './ProductsEdit';
+import {ProductCreate} from './ProductsCreate';
+import {ProductList} from './ProductsList';
 export default {
     icon: Inventory2RoundedIcon,
-    edit: ProductsEdi,
-    create: ProductsCreate,
-    list: ProductsList,
+    edit: ProductEdit,
+    create: ProductCreate,
+    list: ProductList,
 }

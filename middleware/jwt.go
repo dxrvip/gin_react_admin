@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"fmt"
 	"goVueBlog/utils"
+	"goVueBlog/utils/errmsg"
 	"net/http"
 	"strings"
 
@@ -10,25 +10,32 @@ import (
 	"github.com/spf13/viper"
 )
 
-// AuthMiddleware是我们用来检查令牌是否有效的中间件。如果返回401状态无效，则返回给客户。
-func AuthMiddleware(c *gin.Context) {
-	// 检查请求头中是否包含token
-	tokenString := c.GetHeader("Authorization")
-	if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "无效的token"})
-		return
-	}
-	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-	// 验证token
-	appKey := viper.GetString("app.Key")
-	claims, err := utils.VerifyJWT(tokenString, []byte(appKey))
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-	c.Set("username", claims.Foo)
-	c.Set("id", claims.Id)
+// JWT中间件
+func JwtToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenHeader := c.Request.Header.Get("Authorization")
+		if tokenHeader == "" {
+			utils.ResponseAuthError(c, errmsg.ERROR_TOKEN_NOT_EXIST, nil)
+			c.Abort()
+			return
+		}
 
-	fmt.Printf("claims: %v\n", claims)
-	c.Next()
+		checkToken := strings.Split(tokenHeader, " ")
+		if len(checkToken) != 2 || checkToken[0] != "Bearer" {
+			utils.ResponseAuthError(c, errmsg.ERROR_TOKEN_TYPE_WRONG, nil)
+			c.Abort()
+			return
+		}
+
+		signKey := []byte(viper.GetString("app.Key"))
+		claims, err := utils.VerifyJWT(checkToken[1], signKey)
+		if err != nil {
+			utils.ResponseAuthError(c, http.StatusUnauthorized, nil)
+			c.Abort()
+			return
+		}
+
+		c.Set("id", claims.Id)
+		c.Next()
+	}
 }

@@ -36,29 +36,33 @@ func NewMessageApi() *MessageApi {
 // @Success 200 {object} utils.Response
 // @Router /message [post]
 func (m *MessageApi) CreateMessage(c *gin.Context) {
-	var params models.Message
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+	var params service.CreateData
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
 	idValue, exists := c.Get("id")
 	if !exists {
-		m.Fail(utils.Response{Code: errmsg.ERROR, Msg: "获取用户ID失败"})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: "获取用户ID失败"})
 		return
 	}
 	// 将interface{}转换为uint
 
 	id, _ := idValue.(int)
-
-	params.Creator = uint(id)
+	// 添加数据
+	var upData models.Message = models.Message{
+		Content: params.Content,
+		Creator: uint(id),
+		Title:   params.Title,
+	}
 
 	// 创建消息
-	data, err := m.Service.CreateMessage(&params)
+	data, err := m.Service.CreateMessage(&upData)
 	if err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
-	m.Ok(utils.Response{Data: data, Code: http.StatusOK}, "")
+	m.Ok(c, utils.Response{Data: data, Code: http.StatusOK}, "")
 }
 
 // 更新消息
@@ -71,20 +75,20 @@ func (m *MessageApi) CreateMessage(c *gin.Context) {
 // @Router /messages/{id} [put]
 func (m *MessageApi) UpdateMessage(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
 	var params models.Message
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
 	if err := m.Service.UpdateDataByID(id.ID, &params); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: ""}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: ""}, "")
 }
 
 // 删除消息
@@ -96,15 +100,15 @@ func (m *MessageApi) UpdateMessage(c *gin.Context) {
 // @Router /messages/{id} [delete]
 func (m *MessageApi) DeleteMessage(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
 	if err := m.Service.DeleteByID(id.ID); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: ""}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: ""}, "")
 }
 
 // 获取消息列表
@@ -117,17 +121,17 @@ func (m *MessageApi) DeleteMessage(c *gin.Context) {
 // @Router /messages [get]
 func (m *MessageApi) ListMessage(c *gin.Context) {
 	var querys serializer.CommonQueryOtpones
-	if err := m.ResolveQueryParams(BinldQueryOtpons{Ctx: c, Querys: &querys}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+	if err := m.ResolveQueryParams(c, BinldQueryOtpons{Querys: &querys}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
-	var datas []models.Message
+	var datas []service.ResponseMessage
 	re, err := m.Service.List(&datas, &querys)
 	if err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: datas}, re)
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: datas}, re)
 }
 
 // 获取消息详情
@@ -139,15 +143,15 @@ func (m *MessageApi) ListMessage(c *gin.Context) {
 // @Router /messages/{id} [get]
 func (m *MessageApi) GetMessageById(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if error := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); error != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
+	if error := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); error != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
 		return
 	}
 	var data models.Message
 	if error := m.Service.GetDataByID(id.ID, &data); error != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
 		return
 	}
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: data}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: data}, "")
 
 }

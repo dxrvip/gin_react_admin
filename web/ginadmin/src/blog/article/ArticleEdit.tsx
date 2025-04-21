@@ -1,6 +1,6 @@
-import { RichTextInput } from "ra-input-rich-text"
+import { RichTextInput, RichTextInputToolbar } from "ra-input-rich-text"
 import {
-    Edit, SimpleForm, TextInput, TextField,
+    Edit, SimpleForm, TextInput,
     ReferenceInput,
     SelectInput,
     ImageInput,
@@ -19,7 +19,7 @@ const ArticleEdit = () => {
     }
     return (
         <Edit title={<PostTitle />}>
-            <SimpleForm>
+            <SimpleForm shouldUnregister>
 
                 <TextInput source="title" label="文章标题" validate={[required(), maxLength(100), minLength(2)]} />
                 <TextInput source="desc" multiline={true} label="文章摘要" validate={[maxLength(200)]} />
@@ -34,7 +34,14 @@ const ArticleEdit = () => {
                     <ImageField source="src" title="title" />
                 </ImageInput>
                 {/* 文章内容 */}
-                <RichTextInput fullWidth source="content" label="文章内容" validate={[required(), minLength(10)]} />
+                {/* 文章内容 */}
+                <RichTextInput
+                    source="content"
+                    toolbar={<RichTextInputToolbar />}
+                    label="文章内容"
+                    validate={[required(), minLength(10)]}
+                />
+                {/* <RichTextInput source="content" label="文章内容" validate={[required(), minLength(10)]} /> */}
             </SimpleForm>
         </Edit>
     )

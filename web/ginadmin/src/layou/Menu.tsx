@@ -20,8 +20,9 @@ import order from "../shop/order";
 import shop from "../shop"
 import product from "../shop/products";
 import attribute from "../shop/attribute";
-import category from "../shop/category";
+import category from "../shop/categories";
 import brand from "../shop/brand";
+// import sku from "../shop/sku";
 
 type MenuName = 'blog' | 'system' | 'shop' | 'product';
 
@@ -127,33 +128,35 @@ const Menu = ({ dense = false }: MenuProps) => {
                     dense={dense}
                 />
                 <MenuItemLink
-                    to="/article"
+                    to="/categories"
                     state={{ _scrollToTop: true }}
                     primaryText="商品分类"
                     leftIcon={<category.icon />}
                     dense={dense}
                 />
                 <MenuItemLink
-                    to="/category"
+                    to="/attribute"
                     state={{ _scrollToTop: true }}
                     primaryText="商品属性"
                     leftIcon={<attribute.icon />}
                     dense={dense}
                 />
                 <MenuItemLink
-                    to="/category"
+                    to="/product"
                     state={{ _scrollToTop: true }}
                     primaryText="商品列表"
                     leftIcon={<product.icon />}
                     dense={dense}
                 />
                 <MenuItemLink
-                    to="/article"
+                    to="/order"
                     state={{ _scrollToTop: true }}
                     primaryText="订单列表"
                     leftIcon={<order.icon />}
                     dense={dense}
                 />
+
+         
             </SubMenu>
 
         </Box>

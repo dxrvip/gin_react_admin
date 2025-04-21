@@ -35,7 +35,6 @@ const One int = 1
 // @Success 200 {object} object
 // @Router /systemMenu [get]
 func (m *SystemMenuApi) SystemMenuList(c *gin.Context) {
-	m.SetCtx(c)
 	currentDir, _ := os.Getwd()
 	dir := filepath.Join(currentDir, "/api")
 	funcs, err := utils.ParseApiFiles(dir)
@@ -44,5 +43,5 @@ func (m *SystemMenuApi) SystemMenuList(c *gin.Context) {
 	}
 	tatol := len(funcs)
 	rs := fmt.Sprintf("%d-%d/%d", One, One+tatol, One)
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: funcs}, rs)
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: funcs}, rs)
 }

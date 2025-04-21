@@ -1,9 +1,20 @@
-function ProductsEdit() {
-    return ( 
-        <div>
-            <h1>Products Edit</h1>
-        </div>
-     );
-}
+import {
+  Edit,
 
-export default ProductsEdit;
+  SimpleForm,
+
+} from 'react-admin';
+import ProductsForm from './components/ProductsForm';
+
+
+
+export const ProductEdit = () => (
+  <Edit>
+    <SimpleForm>
+      <ProductsForm />  
+    </SimpleForm>
+  </Edit>
+);
+
+
+export default ProductEdit;

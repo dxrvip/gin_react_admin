@@ -1,4 +1,4 @@
-package routers
+package routes
 
 import (
 	"goVueBlog/api"
@@ -28,7 +28,7 @@ func InitUrlsRouter() *gin.Engine {
 	v1.POST("/user/register", apiUser.Register)
 
 	// 注册中间件r.Use(middleware.AuthMiddleware)
-	v1.Use(middleware.AuthMiddleware)
+	v1.Use(middleware.JwtToken())
 	// swag
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
@@ -50,6 +50,8 @@ func InitUrlsRouter() *gin.Engine {
 	RegisterDepartmentUrls(v1)
 	//=> 消息路由
 	RegisterMessageUrls(v1)
+	//=> 商城路由
+	RegisterRouters(v1)
 	//=> 文件上传
 	v1.GET("/auto/upload", api.UploadImage)
 	return r

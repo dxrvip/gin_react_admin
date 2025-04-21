@@ -15,11 +15,12 @@ import user from "./system/user";
 import department from "./system/department";
 import message from "./system/messages";
 
-import category from "./shop/category"
+import shopcategory from "./shop/categories"
 import brand from "./shop/brand";
 import products from "./shop/products";
 import order from "./shop/order";
 import attribute from "./shop/attribute";
+// import sku from "./shop/products/SecondHandProduct";
 
 
 import role from "./system/role";
@@ -64,8 +65,8 @@ export const App = () => (
 
 
       <Resource
-        name="shopcategory"
-        {...category}
+        name="categories"
+        {...shopcategory}
       />
       <Resource
         name="attribute"
@@ -76,7 +77,7 @@ export const App = () => (
         {...brand}
       />
       <Resource
-        name="products"
+        name="product"
         {...products}
       />
       <Resource

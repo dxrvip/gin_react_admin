@@ -4,6 +4,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	JwtKey string
+)
+
 func InitSetting() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("ini")
@@ -12,4 +16,7 @@ func InitSetting() {
 	if err != nil {
 		panic(err)
 	}
+
+	// 初始化 JWT Key
+	JwtKey = viper.GetString("app.Key")
 }

@@ -5,7 +5,7 @@ import OrderEdit from './OrderEdit';
 import OrderList from './OrderList';
 export default {
     icon: AddchartRoundedIcon,
-    edit: OrderCreate,
-    create: OrderEdit,
+    edit: OrderEdit,
+    create: OrderCreate,
     list: OrderList,
 }

@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,13 +34,13 @@ func RoleMiddleware(requiredAction string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 假设用户角色存储在请求的上下文中
 		// userRole := c.MustGet("userRole").(string)
-		userRole := "userRole"
+		// userRole := "userRole"
 
-		if !authorize(userRole, requiredAction) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "权限不足"})
-			c.Abort()
-			return
-		}
+		// if !authorize(userRole, requiredAction) {
+		// 	c.JSON(http.StatusNotFound, gin.H{"error": "权限不足"})
+		// 	c.Abort()
+		// 	return
+		// }
 
 		c.Next()
 	}

@@ -14,7 +14,7 @@ type ArticleService struct {
 func NewArticleService() *ArticleService {
 	if articleService == nil {
 		return &ArticleService{
-			BaseService: NewBaseApi(models.Article{}),
+			BaseService: NewBaseApi(&models.Article{}),
 		}
 	}
 	return articleService
@@ -49,7 +49,7 @@ func (m *ArticleService) GetArticleById(id uint) (*ArticleResponse, error) {
 
 // 更新文章
 func (m *ArticleService) UpdateArticleById(id int, data *models.Article) error {
-	return m.DB.Model(&models.Article{}).Where("id = ?", id).Updates(data).Error
+	return m.DB.Model(m.Model).Where("id = ?", id).Updates(data).Error
 }
 
 // 删除文章

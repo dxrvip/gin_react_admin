@@ -1,9 +1,19 @@
+import {
+    Edit,
+    SimpleForm,
+} from 'react-admin';
+import { OrderForm } from './components/OrderForm';
+
+
+
 function OrderEdit() {
-    return ( 
-        <div>
-            <h1>OrderEdit Edit</h1>
-        </div>
-     );
+    return (
+        <Edit>
+            <SimpleForm>
+                 <OrderForm />
+            </SimpleForm>
+        </Edit>
+    );
 }
 
 export default OrderEdit;

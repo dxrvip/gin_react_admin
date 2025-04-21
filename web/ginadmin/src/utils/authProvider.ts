@@ -53,8 +53,8 @@ export const authProvider: AuthProvider = {
   },
 
   checkError: (error) => {
-    console.log("========>", error);
     const status = error.status;
+    
     if (status === 401 || status === 403) {
       localStorage.removeItem("user");
       localStorage.removeItem("token");

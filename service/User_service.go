@@ -49,7 +49,7 @@ func NewUserService() *UserService {
 
 	if userService == nil {
 		return &UserService{
-			BaseService: NewBaseApi(&models.User{}),
+			BaseService: NewBaseApi(models.User{}),
 		}
 	}
 	return userService

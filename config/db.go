@@ -30,7 +30,7 @@ func DbInit() (DB *gorm.DB) {
 		viper.GetString("database.DbName"),
 	)
 	var err error
-	DB, err = gorm.Open(mysql.Open(dns), &gorm.Config{Logger: newLogger})
+	DB, err = gorm.Open(mysql.Open(dns), &gorm.Config{Logger: newLogger, TranslateError: true})
 	if err != nil {
 		panic("连接数据库失败")
 	}
@@ -49,6 +49,16 @@ func DbInit() (DB *gorm.DB) {
 		&models.Message{},
 		&models.Department{},
 		&models.UserMessage{},
+		&models.Brand{},
+		&models.ProductCategory{},
+		// &models.ProductAttribute{},
+		&models.Attribute{},
+		&models.CategoryAttribute{},
+
+		&models.Product{},
+		&models.Order{},
+		&models.OrderItem{},
+		&models.SecondHandSku{},
 	)
 	return
 }

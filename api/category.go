@@ -39,19 +39,21 @@ type CategoryRequest struct {
 func (m CategoryApi) AddCategory(c *gin.Context) {
 	// 获取请求参数
 	var req CategoryRequest
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &req, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_CATENAME_FORMAT})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &req, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_CATENAME_FORMAT})
 		return
 	}
-
-	result, err := m.Service.Create(&req)
+	var saveData models.Category = models.Category{
+		Name: req.Name,
+	}
+	err := m.Service.Create(&saveData)
 	if err != nil {
-		m.Fail(utils.Response{Code: errmsg.REEOR_CATE_ADD_FAIL})
+		m.Fail(c, utils.Response{Code: errmsg.REEOR_CATE_ADD_FAIL})
 		return
 	}
 
 	// 添加成功返回信息
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: result}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: saveData}, "")
 
 }
 
@@ -65,7 +67,7 @@ func (m CategoryApi) AddCategory(c *gin.Context) {
 func (m *CategoryApi) GetCategoryList(c *gin.Context) {
 	// 获取分类列表
 	var querys serializer.CommonQueryOtpones
-	if err := m.ResolveQueryParams(BinldQueryOtpons{Ctx: c, Querys: &querys}).GetError(); err != nil {
+	if err := m.ResolveQueryParams(c, BinldQueryOtpons{Querys: &querys}).GetError(); err != nil {
 		return
 	}
 
@@ -74,11 +76,11 @@ func (m *CategoryApi) GetCategoryList(c *gin.Context) {
 
 	rs, err := m.Service.List(&datas, &querys)
 	if err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_CONTENT})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_ARTICLE_CONTENT})
 		return
 	}
 
-	m.Ok(utils.Response{
+	m.Ok(c, utils.Response{
 		Code: m.Code,
 		Data: datas,
 	}, rs)
@@ -96,22 +98,22 @@ func (m *CategoryApi) GetCategoryList(c *gin.Context) {
 func (m *CategoryApi) UpdateCategory(c *gin.Context) {
 	// 修改分类
 	var id serializer.CommonIDDTO
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_CATEGORY_BY_ID_NOT_EXIST})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_CATEGORY_BY_ID_NOT_EXIST})
 		return
 	}
 	var jsonData models.Category
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &jsonData, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_CATENAME_FORMAT})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &jsonData, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_CATENAME_FORMAT})
 		return
 	}
 
 	// 修改
 	if err := m.Service.UpdateDataByID(uint(id.ID), &jsonData); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_CATEGORY_UPDATE_FAIL})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_CATEGORY_UPDATE_FAIL})
 		return
 	}
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: jsonData}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: jsonData}, "")
 }
 
 // GetCategoryById
@@ -126,16 +128,16 @@ func (m *CategoryApi) GetCategoryById(c *gin.Context) {
 	// 根据分类id获取分类详情的逻辑
 	var id serializer.CommonIDDTO
 
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR})
 		return
 	}
 	var datas models.Category
 	if err := m.Service.GetDataByID(id.ID, &datas); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_CATENAME_EXITS})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_CATENAME_EXITS})
 		return
 	}
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: datas}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: datas}, "")
 }
 
 // DeleteCategory
@@ -150,15 +152,15 @@ func (m *CategoryApi) DeleteCategory(c *gin.Context) {
 
 	var id serializer.CommonIDDTO
 	// 根据id删除分类的逻辑
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_CATENAME_EXITS, Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_CATENAME_EXITS, Msg: err.Error()})
 		return
 	}
 
 	if err := m.Service.DeleteByID(uint(id.ID)); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 
 	}
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: nil}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: nil}, "")
 }

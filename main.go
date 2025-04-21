@@ -4,7 +4,7 @@ import (
 	"context"
 	"goVueBlog/cmd"
 	"goVueBlog/globar"
-	"goVueBlog/routers"
+	"goVueBlog/routes"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,7 +20,7 @@ func main() {
 	cmd.Start()
 
 	// 初始化路由
-	r := routers.InitUrlsRouter()
+	r := routes.InitUrlsRouter()
 	srv := &http.Server{
 		Addr:    viper.GetString("servers.HttpPort"),
 		Handler: r,

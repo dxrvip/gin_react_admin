@@ -38,13 +38,13 @@ func (m *UserApi) Register(c *gin.Context) {
 	// 拿到表单信息
 	var params service.RegisterData
 
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
 
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
 	if params.Password != params.RePassword {
-		m.Fail(utils.Response{Msg: "二次密码不正确！"})
+		m.Fail(c, utils.Response{Msg: "二次密码不正确！"})
 	}
 	var registerData models.User = models.User{
 		Username: params.Username,
@@ -57,10 +57,10 @@ func (m *UserApi) Register(c *gin.Context) {
 
 	token, err := m.Service.CreateUser(&registerData)
 	if err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USERNAME_USED, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USERNAME_USED, Msg: err.Error()})
 		return
 	}
-	m.Ok(utils.Response{
+	m.Ok(c, utils.Response{
 		Code: errmsg.SUCCESS,
 		Data: map[string]any{"token": token, "id": registerData.ID, "username": registerData.Username},
 	}, "")
@@ -76,28 +76,28 @@ func (m *UserApi) Register(c *gin.Context) {
 func (m *UserApi) Login(c *gin.Context) {
 	var params service.LoginRequest
 
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
 
-		m.Fail(utils.Response{Code: errmsg.ERROR_USERNAME_OR_PASSWORD_WRONG, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 	// 获取数据库中密码
 	user, _ := m.Service.GetUserByUsername(params.Username)
 	if user.Username == "" {
-		m.Fail(utils.Response{Msg: "用户不存在！"})
+		m.Fail(c, utils.Response{Msg: "用户不存在！"})
 		return
 	}
 	// 谁他妈的总是改密码
 	// 验证密码是否正确///$2a$10$vMa2gs0V85bjxxLEMfdjBOjqNRS4xkRN5Kf1rkwPGcfHvCoN8HCOe
 	if !utils.CheckPassword(params.Password, user.Password) {
-		m.Fail(utils.Response{Msg: "密码错误！"})
+		m.Fail(c, utils.Response{Msg: "密码错误！"})
 		return
 	}
 
 	// 生成token
 	token, err := utils.GenerateToken(params.Username, int(user.ID))
 	if err != nil {
-		m.Fail(utils.Response{})
+		m.Fail(c, utils.Response{})
 		return
 	}
 
@@ -115,18 +115,18 @@ func (m *UserApi) Login(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 func (m *UserApi) List(c *gin.Context) {
 	var quers serializer.CommonQueryOtpones
-	if err := m.ResolveQueryParams(BinldQueryOtpons{Ctx: c, Querys: &quers}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+	if err := m.ResolveQueryParams(c, BinldQueryOtpons{Querys: &quers}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
 
 	var datas []service.ResponseUser
 	re, err := m.Service.List(&datas, &quers)
 	if err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: datas}, re)
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: datas}, re)
 }
 
 // Info
@@ -135,23 +135,23 @@ func (m *UserApi) List(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Success 200
 // @Router /user/{id} [get]
-func (m *UserApi) Info(g *gin.Context) {
+func (m *UserApi) Info(c *gin.Context) {
 	// 实现获取用户信息的逻辑
 
 	var id serializer.CommonIDDTO
 
-	if error := m.BindResquest(BindRequestOtpons{Ctx: g, Ser: &id, BindUri: true}).GetError(); error != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
+	if error := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); error != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
 		return
 
 	}
 
 	var user service.ResponseUser
 	if error := m.Service.GetDataByID(id.ID, &user); error != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: error.Error()})
 		return
 	}
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: user}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: user}, "")
 }
 
 // Delete
@@ -184,19 +184,19 @@ func (m *UserApi) Delete(c *gin.Context) {
 func (m *UserApi) Update(c *gin.Context) {
 	// 实现修改用户信息的逻辑
 	var id serializer.CommonIDDTO
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
 	// 获取修改数据
 	var updateData service.UpdateUser
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &updateData, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &updateData, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
 	// 修改数据
 	if err := m.Service.UpdateUser(id.ID, updateData); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_USER_NOT_EXIST, Msg: err.Error()})
 		return
 	}
 	// 组织返回数据
@@ -207,5 +207,5 @@ func (m *UserApi) Update(c *gin.Context) {
 	response.Email = updateData.Email
 	response.Active = updateData.Active
 
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Msg: "修改成功", Data: response}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Msg: "修改成功", Data: response}, "")
 }

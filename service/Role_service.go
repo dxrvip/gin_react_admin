@@ -78,7 +78,7 @@ func (m *RoleService) RemoveAllAnys(role *models.Role) error {
 func (m *BaseService) UpdateRoleDataByID(id uint, data interface{}) error {
 
 	// result := m.DB.Model(&m.Model).Save(rValue.Interface())
-	result := m.DB.Model(&m.Model).Where("id = ?", id).Updates(data)
+	result := m.DB.Model(m.Model).Where("id = ?", id).Updates(data)
 	return result.Error
 }
 
@@ -122,7 +122,7 @@ func (m *RoleService) GetDataByID(id uint) (RoleResponse, error) {
 	var response RoleResponse
 
 	// 查询角色及其关联的用户字段
-	if err := m.DB.Model(&m.Model).Preload("Users", func(db *gorm.DB) *gorm.DB {
+	if err := m.DB.Model(m.Model).Preload("Users", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id, username") // 选择 Users 中的 id 和 username
 	}).First(&role, id).Error; err != nil {
 		return response, fmt.Errorf("获取角色失败: %w", err)

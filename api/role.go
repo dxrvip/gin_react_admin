@@ -2,6 +2,7 @@
 package api
 
 import (
+	"goVueBlog/models"
 	"goVueBlog/service"
 	"goVueBlog/service/serializer"
 	"goVueBlog/utils"
@@ -37,63 +38,68 @@ func NewRoleApi() *RoleApi {
 // @Router /role [post]
 func (m *RoleApi) CreateRole(c *gin.Context) {
 	var params service.RoleParams
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
-
+	var saveData models.Role = models.Role{
+		Name:   params.Name,
+		Key:    params.Key,
+		Sort:   params.Sort,
+		Active: params.Active,
+	}
 	// 假如数据库
-	datas, err := m.Service.Create(params)
+	err := m.Service.Create(&saveData)
 	if err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: &datas}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: &saveData}, "")
 }
 
 func (m *RoleApi) GetRoleById(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
 
 	datas, err := m.Service.GetDataByID(uint(id.ID))
 	if err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
-	m.Ok(utils.Response{Data: datas}, "")
+	m.Ok(c, utils.Response{Data: datas}, "")
 
 }
 func (m *RoleApi) ListRole(c *gin.Context) {
 	var querys serializer.CommonQueryOtpones
-	if err := m.ResolveQueryParams(BinldQueryOtpons{Ctx: c, Querys: &querys}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+	if err := m.ResolveQueryParams(c, BinldQueryOtpons{Querys: &querys}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 	var datas []service.RoleResponse
 	rs, err := m.Service.List(&datas, &querys)
 	if err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: datas}, rs)
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: datas}, rs)
 }
 
 func (m *RoleApi) UpdateRole(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
 
 	// 获取更新数据
 	var params service.UpdateParams
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
 	// 组织更新内容
@@ -112,13 +118,13 @@ func (m *RoleApi) UpdateRole(c *gin.Context) {
 	// 先更新数据
 
 	if err := m.Service.UpdateRoleDataByID(id.ID, &updateData); err != nil {
-		m.Fail(utils.Response{Msg: "数据更新失败！"})
+		m.Fail(c, utils.Response{Msg: "数据更新失败！"})
 		return
 	}
 
 	updateData["id"] = id.ID
 
-	m.Ok(utils.Response{Data: updateData}, "")
+	m.Ok(c, utils.Response{Data: updateData}, "")
 }
 
 // 更新用户权限
@@ -126,8 +132,8 @@ func (m *RoleApi) UpdateRoleUsers(c *gin.Context) {
 	// 获取更新数据
 	var id serializer.CommonIDDTO
 	// 获取id
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
 
@@ -135,16 +141,16 @@ func (m *RoleApi) UpdateRoleUsers(c *gin.Context) {
 		User []uint `json:"user" binding:"required"`
 	}
 
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
 
 	if err := m.Service.UpdateRoleUsers(id.ID, params.User); err != nil {
-		m.Fail(utils.Response{Msg: "数据更新失败！"})
+		m.Fail(c, utils.Response{Msg: "数据更新失败！"})
 		return
 	}
-	m.Ok(utils.Response{Data: map[string]interface{}{"id": id.ID}}, "")
+	m.Ok(c, utils.Response{Data: map[string]interface{}{"id": id.ID}}, "")
 
 }
 
@@ -153,36 +159,36 @@ func (m *RoleApi) UpdateRoleMenus(c *gin.Context) {
 	// 获取更新数据
 	var id serializer.CommonIDDTO
 	// 获取id
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
 
 	var params service.UpdateParams
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
 
 	if err := m.Service.UpdateRoleMenus(id.ID, &params); err != nil {
-		m.Fail(utils.Response{Msg: "数据更新失败！"})
+		m.Fail(c, utils.Response{Msg: "数据更新失败！"})
 		return
 	}
-	m.Ok(utils.Response{Data: map[string]interface{}{"id": id.ID}}, "")
+	m.Ok(c, utils.Response{Data: map[string]interface{}{"id": id.ID}}, "")
 
 }
 
 func (m *RoleApi) DelRole(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
 
 	if err := m.Service.DeleteByID(id.ID); err != nil {
-		m.Fail(utils.Response{Msg: err.Error()})
+		m.Fail(c, utils.Response{Msg: err.Error()})
 		return
 	}
 
-	m.Ok(utils.Response{Data: id.ID}, "")
+	m.Ok(c, utils.Response{Data: id.ID}, "")
 }

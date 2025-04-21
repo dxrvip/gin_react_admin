@@ -32,12 +32,16 @@ func HttpResopnse(ctx *gin.Context, status int, resp *Response) {
 }
 
 func Success(ctx *gin.Context, resp Response, rs any) {
-
 	// 检查 Data 是否为切片类型
 	respDataValue := reflect.ValueOf(resp.Data)
 	if respDataValue.Kind() == reflect.Slice {
 		// 添加一个返回协议头
-		ctx.Header("Content-Range", rs.(string))
+		if rsStr, ok := rs.(string); ok {
+			ctx.Header("Content-Range", rsStr)
+		} else {
+			// 如果 rs 不是字符串类型，记录错误日志
+			ctx.Header("Content-Range", "unknown")
+		}
 		ctx.Header("Content-Type", "application/json")
 		if respDataValue.Len() <= 0 {
 			resp.Data = []any{}

@@ -15,7 +15,6 @@ import (
 )
 
 type BaseApi struct {
-	Ctx    *gin.Context
 	Errors error
 	Logger *zap.SugaredLogger
 }
@@ -27,28 +26,22 @@ func NewBaseApi() BaseApi {
 }
 
 type BindRequestOtpons struct {
-	Ctx     *gin.Context
 	Ser     any
 	BindUri bool
 }
 
-func (b *BaseApi) SetCtx(Ctx *gin.Context) {
-	b.Ctx = Ctx
-}
-
-func (b *BaseApi) BindResquest(option BindRequestOtpons) *BaseApi {
+func (b *BaseApi) BindResquest(c *gin.Context, option BindRequestOtpons) *BaseApi {
 	var errResult error
-	b.Ctx = option.Ctx
 	b.Errors = nil
 	if option.Ser != nil {
 		if option.BindUri {
-			errResult = utils.AppendError(errResult, b.Ctx.ShouldBindUri(option.Ser))
+			errResult = utils.AppendError(errResult, c.ShouldBindUri(option.Ser))
 		} else {
-			errResult = utils.AppendError(errResult, b.Ctx.ShouldBind(option.Ser))
+			errResult = utils.AppendError(errResult, c.ShouldBind(option.Ser))
 		}
 		if errResult != nil {
 			b.AddError(errResult)
-			b.Fail(utils.Response{
+			b.Fail(c, utils.Response{
 				Code: errmsg.ERROR_REQUERY_ARG_WRONG,
 				Msg:  b.GetError().Error(),
 			})
@@ -83,7 +76,6 @@ func (b *BaseApi) ParseValidateErrors(errs error, target any) error {
 }
 
 type BinldQueryOtpons struct {
-	Ctx    *gin.Context
 	Querys *serializer.CommonQueryOtpones
 }
 
@@ -94,12 +86,11 @@ const (
 )
 
 // 对query数据进行解析
-func (b *BaseApi) ResolveQueryParams(option BinldQueryOtpons) *BaseApi {
+func (b *BaseApi) ResolveQueryParams(c *gin.Context, option BinldQueryOtpons) *BaseApi {
 	// 将Query取出来
-	b.Ctx = option.Ctx
 	// 对数据进行转换
-	option.Querys.Filter = utils.StringToJson(b.Ctx.DefaultQuery("filter", defaultFilter)) // 字符串转json
-	result := b.Ctx.DefaultQuery("sort", "")
+	option.Querys.Filter = utils.StringToJson(c.DefaultQuery("filter", defaultFilter)) // 字符串转json
+	result := c.DefaultQuery("sort", "")
 	if result != "" {
 
 		var sort []string
@@ -108,7 +99,7 @@ func (b *BaseApi) ResolveQueryParams(option BinldQueryOtpons) *BaseApi {
 		option.Querys.Sort.Md = sort[1]
 	}
 
-	result = b.Ctx.DefaultQuery("range", "")
+	result = c.DefaultQuery("range", "")
 	if result != "" {
 
 		var rangea []int
@@ -129,17 +120,27 @@ func (b *BaseApi) GetError() error {
 	return b.Errors
 }
 
-func (b *BaseApi) Fail(resp utils.Response) {
+func (b *BaseApi) Fail(c *gin.Context, resp utils.Response) {
 	resp.Code = errmsg.ERROR
-	utils.Fails(b.Ctx, resp)
+	utils.Fails(c, resp)
 }
 
-func (b *BaseApi) Ok(resp utils.Response, rs string) {
+func (b *BaseApi) Ok(c *gin.Context, resp utils.Response, rs string) {
 	resp.Code = errmsg.SUCCESS
-	utils.Success(b.Ctx, resp, rs)
+	utils.Success(c, resp, rs)
 }
 
-func (m *BaseApi) ServerFail(resp utils.Response) {
+// func (m *BaseApi) ServerFail(resp utils.Response) {
 
-	utils.ServerFail(m.Ctx, resp)
+// 	utils.ServerFail(c, resp)
+// }
+
+func (m *BaseApi) GetParamsId(ctx *gin.Context) (uint, error) {
+	var id serializer.CommonIDDTO
+	err := m.BindResquest(ctx, BindRequestOtpons{Ser: &id, BindUri: true}).GetError()
+	if err != nil {
+		m.Fail(ctx, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		return 0, err
+	}
+	return id.ID, nil
 }

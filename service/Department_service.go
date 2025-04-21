@@ -14,7 +14,7 @@ type DepartmentService struct {
 func NewDepartmentService() *DepartmentService {
 	if departmentService == nil {
 		return &DepartmentService{
-			BaseService: NewBaseApi(&models.Department{}),
+			BaseService: NewBaseApi(models.Department{}),
 		}
 	}
 	return departmentService

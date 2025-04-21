@@ -13,7 +13,7 @@ type CategoryService struct {
 func NewCateGoryService() *CategoryService {
 	if categoryService == nil {
 		return &CategoryService{
-			BaseService: NewBaseApi(models.Category{}),
+			BaseService: NewBaseApi(&models.Category{}),
 		}
 	}
 	return categoryService

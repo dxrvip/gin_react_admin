@@ -37,25 +37,25 @@ func NewDepartmentApi() *DepartmentApi {
 // @Router /departments [post]
 func (a *DepartmentApi) CreateDepartment(c *gin.Context) {
 	var department models.Department
-	if err := a.BindResquest(BindRequestOtpons{Ctx: c, Ser: &department, BindUri: false}).GetError(); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+	if err := a.BindResquest(c, BindRequestOtpons{Ser: &department, BindUri: false}).GetError(); err != nil {
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 	// 获取用户id
 
 	userId, err := utils.GetUserId(c)
 	if err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 
 	department.Creator = userId
 
 	if err := a.Service.CreateDepartment(&department); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
-	a.Ok(utils.Response{Data: department, Code: 200}, "")
+	a.Ok(c, utils.Response{Data: department, Code: 200}, "")
 
 }
 
@@ -69,13 +69,13 @@ func (a *DepartmentApi) CreateDepartment(c *gin.Context) {
 // @Router /departments/{id} [put]
 func (a *DepartmentApi) UpdateDepartment(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if err := a.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+	if err := a.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 	var department models.Department
-	if err := a.BindResquest(BindRequestOtpons{Ctx: c, Ser: &department, BindUri: false}).GetError(); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+	if err := a.BindResquest(c, BindRequestOtpons{Ser: &department, BindUri: false}).GetError(); err != nil {
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 	var updateData = map[string]interface{}{
@@ -83,10 +83,10 @@ func (a *DepartmentApi) UpdateDepartment(c *gin.Context) {
 		"parent_id": department.ParentID,
 	}
 	if err := a.Service.UpdateDepartment(uint(id.ID), updateData); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
-	a.Ok(utils.Response{Data: department, Code: 200}, "")
+	a.Ok(c, utils.Response{Data: department, Code: 200}, "")
 
 }
 
@@ -99,15 +99,15 @@ func (a *DepartmentApi) UpdateDepartment(c *gin.Context) {
 // @Router /departments/{id} [delete]
 func (a *DepartmentApi) DeleteDepartment(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if err := a.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+	if err := a.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 	if err := a.Service.DeleteDepartment(uint(id.ID)); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
-	a.Ok(utils.Response{Code: 200}, "")
+	a.Ok(c, utils.Response{Code: 200}, "")
 
 }
 
@@ -121,8 +121,8 @@ func (a *DepartmentApi) DeleteDepartment(c *gin.Context) {
 // @Router /department [get]
 func (a *DepartmentApi) ListDepartment(c *gin.Context) {
 	var querys serializer.CommonQueryOtpones
-	if err := a.ResolveQueryParams(BinldQueryOtpons{Ctx: c, Querys: &querys}).GetError(); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+	if err := a.ResolveQueryParams(c, BinldQueryOtpons{Querys: &querys}).GetError(); err != nil {
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 	var departments []models.Department
@@ -130,10 +130,18 @@ func (a *DepartmentApi) ListDepartment(c *gin.Context) {
 	rs, err := a.Service.List(&departments, &querys)
 
 	if err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
-	a.Ok(utils.Response{Data: departments, Code: http.StatusOK}, rs)
+	// a.Ok(utils.Response{Data: departments, Code: http.StatusOK}, rs)
+	c.Header("Content-Range", rs)
+	c.Header("Content-Type", "application/json")
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "okk",
+		"data": departments,
+	})
+
 }
 
 // 获取部门详情
@@ -145,15 +153,19 @@ func (a *DepartmentApi) ListDepartment(c *gin.Context) {
 // @Router /departments/{id} [get]
 func (a *DepartmentApi) GetDepartmentById(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if err := a.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+	if err := a.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
 	var department models.Department
 	if err := a.Service.GetDataByID(uint(id.ID), &department); err != nil {
-		a.Fail(utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
+		a.Fail(c, utils.Response{Code: errmsg.ERROR, Msg: err.Error()})
 		return
 	}
-	a.Ok(utils.Response{Data: department, Code: 200}, "")
-
+	// a.Ok(utils.Response{Data: department, Code: 200}, "")
+	c.JSON(http.StatusOK, map[string]any{
+		"code": 200,
+		"msg":  "ok",
+		"data": department,
+	})
 }

@@ -1,4 +1,3 @@
-/* 文章管理 */
 package api
 
 import (
@@ -7,7 +6,6 @@ import (
 	"goVueBlog/service/serializer"
 	"goVueBlog/utils"
 	"goVueBlog/utils/errmsg"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,16 +31,24 @@ func NewArticleApi() ArticleApi {
 // @Description: 创建一片文章
 func (p *ArticleApi) CreateArticle(c *gin.Context) {
 	var params service.ArticleRequry
-	if err := p.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
+	if err := p.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
 		return
 	}
-	params.CreatedAt = time.Now()
-	result, err := p.Service.Create(params)
+	// params.CreatedAt = time.Now()
+	var savaData models.Article = models.Article{
+		Title:   params.Title,
+		Content: params.Content,
+		Cid:     params.Cid,
+		Desc:    params.Desc,
+		Picture: params.Picture,
+		// CreatedAt: params.CreatedAt,
+	}
+	err := p.Service.Create(&savaData)
 	if err != nil {
-		p.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_ADD_FAIL})
+		p.Fail(c, utils.Response{Code: errmsg.ERROR_ARTICLE_ADD_FAIL})
 		return
 	}
-	p.Ok(utils.Response{Code: errmsg.SUCCESS, Data: result}, "")
+	p.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: &savaData}, "")
 }
 
 // ArticleList
@@ -54,7 +60,7 @@ func (p *ArticleApi) CreateArticle(c *gin.Context) {
 func (m *ArticleApi) ArticleList(c *gin.Context) {
 	// 对查询参数进行解析
 	var querys serializer.CommonQueryOtpones
-	if err := m.ResolveQueryParams(BinldQueryOtpons{Ctx: c, Querys: &querys}).GetError(); err != nil {
+	if err := m.ResolveQueryParams(c, BinldQueryOtpons{Querys: &querys}).GetError(); err != nil {
 		return
 	}
 
@@ -62,11 +68,11 @@ func (m *ArticleApi) ArticleList(c *gin.Context) {
 	var datas []models.Article
 	rs, error := m.Service.List(&datas, &querys)
 	if error != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_CONTENT})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_ARTICLE_CONTENT})
 		return
 	}
 
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: datas}, rs)
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: datas}, rs)
 }
 
 // ArticleCreate
@@ -78,16 +84,16 @@ func (m *ArticleApi) ArticleList(c *gin.Context) {
 // @Router /article/{id} [post]
 func (m *ArticleApi) ArticleInfo(c *gin.Context) {
 	var id serializer.CommonIDDTO
-	if ok := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); ok != nil {
+	if ok := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); ok != nil {
 		return
 	}
 	var datas service.ArticleResponse
 	if err := m.Service.GetDataByID(id.ID, &datas); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_ADD_FAIL})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_ARTICLE_ADD_FAIL})
 		return
 	}
 
-	m.Ok(utils.Response{Data: datas, Code: errmsg.SUCCESS}, "")
+	m.Ok(c, utils.Response{Data: datas, Code: errmsg.SUCCESS}, "")
 }
 
 // ArticleDelete
@@ -100,16 +106,16 @@ func (m *ArticleApi) ArticleInfo(c *gin.Context) {
 func (m *ArticleApi) ArticleDelete(c *gin.Context) {
 	var id serializer.CommonIDDTO
 
-	if ok := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); ok != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_DELETE_FAIL, Msg: ok.Error()})
+	if ok := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); ok != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_ARTICLE_DELETE_FAIL, Msg: ok.Error()})
 		return
 	}
 	if err := m.Service.DeleteByID(id.ID); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_DELETE_FAIL, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_ARTICLE_DELETE_FAIL, Msg: err.Error()})
 		return
 	}
 
-	m.Ok(utils.Response{Code: errmsg.SUCCESS}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS}, "")
 }
 
 // ArticleUpdate
@@ -123,21 +129,21 @@ func (m *ArticleApi) ArticleDelete(c *gin.Context) {
 func (m *ArticleApi) ArticleUpdate(c *gin.Context) {
 	var id serializer.CommonIDDTO
 
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &id, BindUri: true}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_UPDATE_FAIL, Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &id, BindUri: true}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_ARTICLE_UPDATE_FAIL, Msg: err.Error()})
 		return
 	}
 	var params models.Article
 
-	if err := m.BindResquest(BindRequestOtpons{Ctx: c, Ser: &params, BindUri: false}).GetError(); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_UPDATE_FAIL, Msg: err.Error()})
+	if err := m.BindResquest(c, BindRequestOtpons{Ser: &params, BindUri: false}).GetError(); err != nil {
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_ARTICLE_UPDATE_FAIL, Msg: err.Error()})
 		return
 	}
 
 	if err := m.Service.UpdateDataByID(id.ID, &params); err != nil {
-		m.Fail(utils.Response{Code: errmsg.ERROR_ARTICLE_UPDATE_FAIL, Msg: err.Error()})
+		m.Fail(c, utils.Response{Code: errmsg.ERROR_ARTICLE_UPDATE_FAIL, Msg: err.Error()})
 		return
 	}
 
-	m.Ok(utils.Response{Code: errmsg.SUCCESS, Data: params}, "")
+	m.Ok(c, utils.Response{Code: errmsg.SUCCESS, Data: params}, "")
 }
