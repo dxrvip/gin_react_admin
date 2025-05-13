@@ -18,7 +18,7 @@ function ParentInput(props: any) {
     return (
         <>
             <ReferenceInput source="parentId" reference="categories" filter={{ id_ne: currentId }} >
-                <SelectInput validate={[required()]} label="父分类" resettable />
+                <SelectInput label="父分类" resettable />
             </ReferenceInput>
 
         </>
