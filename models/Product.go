@@ -135,31 +135,26 @@ const (
 // 二手商品SKU
 type SecondHandSku struct {
 	BaseModel
-	Title         string  `gorm:"type:varchar(60);" json:"title"`
-	ProductID     uint    `gorm:"not null" json:"productId"`                      // 关联主商品ID
-	Price         float64 `gorm:"type:decimal(10,2);not null" json:"price"`       // SKU价格
-	Stock         uint    `gorm:"not null" json:"stock"`                          // 库存
-	Condition     string  `gorm:"type:varchar(20);not null" json:"condition"`     // 成色
-	Function      string  `gorm:"type:varchar(20);not null" json:"function"`      // 功能状态
-	UsageDuration string  `gorm:"type:varchar(20);not null" json:"usageDuration"` // 使用年限
-	Accessories   bool    `gorm:"default:true" json:"accessories"`                // 配件是否齐全
-	// 缺少的配件
-	AccessoriesList string        `gorm:"vachar(255);default:nill" json:"accessoriesList"` // 缺少配件信息
-	FreeShipping    bool          `gorm:"default:false" json:"freeShipping"`               // 是否包邮
-	ShippingFee     float64       `gorm:"type:decimal(10,2);default:0" json:"shippingFee"` // 运费金额（不包邮时的运费）
-	Description     string        `gorm:"type:text" json:"description"`                    // SKU描述
-	Images          PictureList   `gorm:"type:json" json:"picture"`                        // SKU图片
-	Product         Product       `gorm:"foreignKey:ProductID" json:"product"`             // 关联主商品
-	Cost            Float64String `gorm:"decimal(10,2);default:0" json:"cost"`             // 成本价格
-	ProductsType    string        `gorm:"varchar(20);not null" json:"productsType"`        //货号
-	ProductSkuID    string        `gorm:"varchar(100);not null" json:"productSkuID"`       // 商品SKU ID
-	// 是否再保
-	IsRepair      bool      `gorm:"default:false" json:"isRepair"`           // 是否维修过
-	RepairEndDate time.Time `gorm:"autoCreateTime:int" json:"repairEndDate"` // 维修结束时间
-	// 商品状态
-	Status ProductStatus `gorm:"type:varchar(20);default:'active'" json:"status"` // 商品状态
-	// 电池工作时间
-	BatteryLife uint `gorm:"default:30" json:"batteryLife"` // 电池工作时间（单位： 分钟）
-	// 机器工作时间记录
-	WorkingTime uint `gorm:"default:0" json:"workingTime"` // 维修后电池工作时间（单位：分钟）
+	Title           string        `gorm:"type:varchar(60);" json:"title"`
+	ProductID       uint          `gorm:"not null" json:"productId"`                             // 关联主商品ID
+	Price           float64       `gorm:"type:decimal(10,2);not null" json:"price"`              // SKU价格
+	Stock           uint          `gorm:"not null" json:"stock"`                                 // 库存
+	Condition       string        `gorm:"type:varchar(20);not null" json:"condition"`            // 成色
+	Function        string        `gorm:"type:varchar(20);not null" json:"function"`             // 功能状态
+	UsageDuration   string        `gorm:"type:varchar(20);not null" json:"usageDuration"`        // 使用年限
+	Accessories     bool          `gorm:"default:true" json:"accessories"`                       // 配件是否齐全
+	AccessoriesList string        `gorm:"type:varchar(255);default:nill" json:"accessoriesList"` // 缺少配件信息
+	FreeShipping    bool          `gorm:"default:false" json:"freeShipping"`                     // 是否包邮
+	ShippingFee     float64       `gorm:"type:decimal(10,2);default:0" json:"shippingFee"`       // 运费金额（不包邮时的运费）
+	Description     string        `gorm:"type:text" json:"description"`                          // SKU描述
+	Images          PictureList   `gorm:"type:text" json:"picture"`                              // SKU图片 - 使用text类型存储JSON
+	Product         Product       `gorm:"foreignKey:ProductID" json:"product"`                   // 关联主商品
+	Cost            Float64String `gorm:"type:decimal(10,2);default:0" json:"cost"`              // 成本价格
+	ProductsType    string        `gorm:"type:varchar(20);not null" json:"productsType"`         // 货号
+	ProductSkuID    string        `gorm:"type:varchar(100);not null" json:"productSkuID"`        // 商品SKU ID
+	IsRepair        bool          `gorm:"default:false" json:"isRepair"`                         // 是否维修过
+	RepairEndDate   time.Time     `gorm:"autoCreateTime:int" json:"repairEndDate"`               // 维修结束时间
+	Status          ProductStatus `gorm:"type:varchar(20);default:'active'" json:"status"`       // 商品状态
+	BatteryLife     uint          `gorm:"default:30" json:"batteryLife"`                         // 电池工作时间（单位：分钟）
+	WorkingTime     uint          `gorm:"default:0" json:"workingTime"`                          // 维修后电池工作时间（单位：分钟）
 }

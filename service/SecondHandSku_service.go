@@ -56,13 +56,14 @@ func (s *SecondHandSkuService) CreateSecondHandSku(req *CreateSecondHandSkuReque
 	if err := s.DB.First(&product, req.ProductID).Error; err != nil {
 		return nil, errors.Wrap(err, "商品不存在")
 	}
+
 	// 生成一个商品id
 	productSkuID := uuid.New().String()
 
 	// 创建SKU
 	sku := &models.SecondHandSku{
 		ProductSkuID:    productSkuID,
-		ProductID:       req.ProductID,
+		ProductID:       product.ID,
 		Title:           req.Title,
 		Cost:            req.Cost,
 		ProductsType:    req.ProductsType,
