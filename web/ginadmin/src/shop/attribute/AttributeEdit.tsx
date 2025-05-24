@@ -7,7 +7,7 @@ import AttributeForm from "./AttributeForm";
 
 function AttributeEdit(props: any) {
     return (
-        <Edit title="Edit Attribute Value" {...props}>
+        <Edit title="编辑属性" {...props} redirect="list">
             <AttributeForm />
         </Edit>
     );

@@ -153,7 +153,7 @@ export const FormSeconHand = ({ record }: any) => {
                         label="商品图片"
                         validate={[required()]}
                         multiple
-                        maxSize={5000000}>
+                        maxSize={500000000}>
                         <ImageField source="src" title="title" />
                     </ImageInput>
 

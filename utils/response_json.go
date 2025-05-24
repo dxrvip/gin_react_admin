@@ -51,7 +51,7 @@ func Success(ctx *gin.Context, resp Response, rs any) {
 }
 
 func Fails(ctx *gin.Context, resp Response) {
-	HttpResopnse(ctx, http.StatusBadRequest, &resp)
+	HttpResopnse(ctx, http.StatusOK, &resp)
 }
 
 func ServerFail(ctx *gin.Context, resp Response) {

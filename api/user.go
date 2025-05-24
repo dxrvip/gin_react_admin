@@ -102,10 +102,10 @@ func (m *UserApi) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status": http.StatusOK,
-		"msg":    "ok",
-		"token":  token,
-		"data":   user,
+		"code":    http.StatusOK,
+		"message": "ok",
+		"token":   token,
+		"data":    user,
 	})
 }
 

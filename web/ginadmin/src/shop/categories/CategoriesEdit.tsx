@@ -29,7 +29,7 @@ function CategoriesEdit(props: any) {
 
 
     return (
-        <Edit title="Edit Product Categories" {...props}>
+        <Edit title="编辑产品类别" {...props} redirect="list">
             <SimpleForm>
                 <TextInput source="name" label="分类名称" validate={[required(), minLength(2), maxLength(100)]} />
                 <TextInput source="description" label="分类描述" validate={[maxLength(500)]} />

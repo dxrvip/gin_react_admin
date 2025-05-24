@@ -19,6 +19,7 @@ export default function ProductsForm() {
                 <ReferenceInput source="brandID" reference="brand">
                     <SelectInput
                         optionText="name"
+                        optionValue="id"   
                         validate={[required()]}
                         label="品牌选择"
                         parse={v => Number(v)}  // 添加类型转换

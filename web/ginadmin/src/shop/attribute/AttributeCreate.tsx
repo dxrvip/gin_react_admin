@@ -150,7 +150,7 @@
 import { Create } from "react-admin";
 import AttributeForm from "./AttributeForm";
 const AttributeCreate = () => (
-    <Create redirect="list">
+    <Create title={"添加属性"} redirect="list">
         <AttributeForm />
     </Create>
 );

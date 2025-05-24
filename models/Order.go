@@ -60,9 +60,13 @@ type Order struct {
 // 订单项
 type OrderItem struct {
 	BaseModel
-	OrderID   uint          `gorm:"not null" json:"orderId"`                                                                          // 订单ID
-	ProductID uint          `gorm:"not null" json:"productId" binding:"required"`                                                     // 商品ID
-	Quantity  uint          `gorm:"not null" json:"quantity" binding:"required"`                                                      // 购买数量
-	Price     float64       `gorm:"type:decimal(10,2);not null" json:"price" binding:"required"`                                      // 商品单价
-	Product   SecondHandSku `gorm:"foreignKey:ID;references:ProductID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"product"` // 关联商品信息
+	OrderID   uint    `gorm:"not null" json:"orderId"`                                     // 订单ID
+	ProductID uint    `gorm:"not null" json:"productId" binding:"required"`                // 商品ID
+	Quantity  uint    `gorm:"not null" json:"quantity" binding:"required"`                 // 购买数量
+	Price     float64 `gorm:"type:decimal(10,2);not null" json:"price" binding:"required"` // 商品单价
+	// 关联 SecondHandSku（通过 SecondHandSkuID）
+	// 添加显式外键字段
+	SecondHandSkuID uint          `gorm:"not null" json:"secondHandSkuId"`                         // 关联 SecondHandSku（通过 SecondHandSkuID）
+	SecondHandSku   SecondHandSku `gorm:"foreignKey:SecondHandSkuID;references:ID" json:"product"` // 二手商品
+
 }

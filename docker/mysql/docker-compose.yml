@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0  # 使用 MySQL 8.0 版本，你也可以选择 5.7 等其他版本
+    container_name: mysql-server
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: iphon5017  # 替换为你的 root 密码
+      MYSQL_DATABASE: ginadmin      # 替换为你想要创建的数据库名称
+      MYSQL_USER: ginadmin              # 替换为你的用户名
+      MYSQL_PASSWORD: iphon5017          # 替换为你的用户密码
+    ports:
+      - '3307:3306'  # 主机端口:容器端口
+    volumes:
+      - mysql-data:/var/lib/mysql  # 数据持久化存储
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # 可选：初始化 SQL 脚本
+
+volumes:
+  mysql-data:  # 创建一个命名卷用于数据存储

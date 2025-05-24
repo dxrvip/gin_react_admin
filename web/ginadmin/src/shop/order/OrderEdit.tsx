@@ -8,7 +8,7 @@ import { OrderForm } from './components/OrderForm';
 
 function OrderEdit() {
     return (
-        <Edit>
+        <Edit redirect="list">
             <SimpleForm>
                  <OrderForm />
             </SimpleForm>

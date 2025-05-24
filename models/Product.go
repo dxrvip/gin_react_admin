@@ -51,7 +51,7 @@ type Product struct {
 	Brand      Brand        `gorm:"foreignKey:BrandID" json:"brand,omitempty"`
 	Attributes AttributeMap `gorm:"type:json" json:"attributes"`
 	// SecondHandSku 二手商品字段
-	SecondHandSku []SecondHandSku `gorm:"foreignKey:ProductID" json:"secondHandSku,omitempty"`
+	SecondHandSku []SecondHandSku `gorm:"foreignKey:ProductID;references:ID" json:"secondHandSkus"` // 显式指定外键和引用字段
 }
 
 // AfterFind 钩子用于处理 JSON 字段的反序列化
@@ -136,7 +136,6 @@ const (
 type SecondHandSku struct {
 	BaseModel
 	Title           string        `gorm:"type:varchar(60);" json:"title"`
-	ProductID       uint          `gorm:"not null" json:"productId"`                             // 关联主商品ID
 	Price           float64       `gorm:"type:decimal(10,2);not null" json:"price"`              // SKU价格
 	Stock           uint          `gorm:"not null" json:"stock"`                                 // 库存
 	Condition       string        `gorm:"type:varchar(20);not null" json:"condition"`            // 成色
@@ -148,7 +147,6 @@ type SecondHandSku struct {
 	ShippingFee     float64       `gorm:"type:decimal(10,2);default:0" json:"shippingFee"`       // 运费金额（不包邮时的运费）
 	Description     string        `gorm:"type:text" json:"description"`                          // SKU描述
 	Images          PictureList   `gorm:"type:text" json:"picture"`                              // SKU图片 - 使用text类型存储JSON
-	Product         Product       `gorm:"foreignKey:ProductID" json:"product"`                   // 关联主商品
 	Cost            Float64String `gorm:"type:decimal(10,2);default:0" json:"cost"`              // 成本价格
 	ProductsType    string        `gorm:"type:varchar(20);not null" json:"productsType"`         // 货号
 	ProductSkuID    string        `gorm:"type:varchar(100);not null" json:"productSkuID"`        // 商品SKU ID
@@ -157,4 +155,9 @@ type SecondHandSku struct {
 	Status          ProductStatus `gorm:"type:varchar(20);default:'active'" json:"status"`       // 商品状态
 	BatteryLife     uint          `gorm:"default:30" json:"batteryLife"`                         // 电池工作时间（单位：分钟）
 	WorkingTime     uint          `gorm:"default:0" json:"workingTime"`                          // 维修后电池工作时间（单位：分钟）
+
+	ProductID uint    `gorm:"not null;index;index:idx_product_id" json:"productId"` // 关联 Product 的外键
+	Product   Product `gorm:"foreignKey:ProductID;references:ID" json:"product"`    // 正确关联
+	// 添加关联订单的外键约束标签
+	// OrderItems []OrderItem `gorm:"foreignKey:ProductID;references:ProductID" json:"orderItems,omitempty"` // 关联订单项
 }

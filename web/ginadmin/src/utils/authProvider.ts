@@ -2,7 +2,7 @@ import { AuthProvider, HttpError } from "react-admin";
 
 
 interface LoginResponse {
-  status: number;
+  code: number;
   message: string;
   data: { user_id: number, username: string, full_name: string };
   token: string;
@@ -20,9 +20,9 @@ export const authProvider: AuthProvider = {
     return fetch(request)
       .then(async (response) => {
         // 访问成功
-        console.log(response.status)
         let result: LoginResponse = await response.json();
-        if (response.status === 200 && result?.status === 200) {
+        // console.log(result)
+        if (response.status === 200 && result.code === 200) {
           // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 
           // 登陆成功//存储token

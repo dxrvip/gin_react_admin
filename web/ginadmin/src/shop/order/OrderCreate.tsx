@@ -60,7 +60,7 @@ export const RemoveOrderButton = (props: ButtonProps) => {
 
 function OrderCreate() {
     return (
-        <Create redirect="list">
+        <Create title="添加订单" redirect="list">
             <SimpleForm defaultValues={{
                 status: 'paid',
             }}>
